@@ -193,11 +193,6 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "WhatsApp语言增强层"
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "bmad",
-      "repo": "whatsapp-language-enhancement"
     }
   },
   "engines": {
