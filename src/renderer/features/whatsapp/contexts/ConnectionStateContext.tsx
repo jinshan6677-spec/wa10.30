@@ -1,7 +1,5 @@
 import type { ReactNode } from 'react';
-import React, {
-  createContext, useContext, useState, useEffect,
-} from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 import type { ConnectionState } from '../../../../shared/types/evolution-api.types';
 import { ConnectionStatus } from '../../../../shared/types/evolution-api.types';
@@ -42,7 +40,7 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
     // WebSocket 连接成功
     const handleWebSocketConnected = () => {
       console.log('[ConnectionState] WebSocket connected');
-      setConnectionState((prev) => ({
+      setConnectionState(prev => ({
         ...prev,
         reconnectAttempts: 0,
       }));
@@ -51,7 +49,7 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
     // WebSocket 断开连接
     const handleWebSocketDisconnected = (data: { reason: string }) => {
       console.log('[ConnectionState] WebSocket disconnected:', data.reason);
-      setConnectionState((prev) => ({
+      setConnectionState(prev => ({
         ...prev,
         status: ConnectionStatus.DISCONNECTED,
       }));
@@ -60,7 +58,7 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
     // WebSocket 错误
     const handleWebSocketError = (data: { error: Error }) => {
       console.error('[ConnectionState] WebSocket error:', data.error);
-      setConnectionState((prev) => ({
+      setConnectionState(prev => ({
         ...prev,
         error: data.error,
         status: ConnectionStatus.ERROR,
@@ -72,7 +70,7 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
       console.log('[ConnectionState] Connection update:', data);
 
       if (data.state === 'open') {
-        setConnectionState((prev) => ({
+        setConnectionState(prev => ({
           ...prev,
           status: ConnectionStatus.CONNECTED,
           lastConnected: new Date(),
@@ -80,12 +78,12 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
           error: null,
         }));
       } else if (data.state === 'close') {
-        setConnectionState((prev) => ({
+        setConnectionState(prev => ({
           ...prev,
           status: ConnectionStatus.DISCONNECTED,
         }));
       } else if (data.state === 'connecting') {
-        setConnectionState((prev) => ({
+        setConnectionState(prev => ({
           ...prev,
           status: ConnectionStatus.CONNECTING,
         }));
@@ -99,7 +97,8 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
       // Evolution API v2.3.6 WebSocket事件包含完整QR码数据
       // 数据结构: eventData.data.qrcode.base64 或 eventData.data.qrcode.pairingCode
       try {
-        const qrCode = eventData?.data?.qrcode?.base64 ?? eventData?.data?.qrcode?.pairingCode ?? null;
+        const qrCode =
+          eventData?.data?.qrcode?.base64 ?? eventData?.data?.qrcode?.pairingCode ?? null;
 
         if (qrCode) {
           console.log(
@@ -107,7 +106,7 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
             qrCode.length,
             ')',
           );
-          setConnectionState((prev) => ({
+          setConnectionState(prev => ({
             ...prev,
             qrCode,
             status: ConnectionStatus.QR_CODE_READY,
@@ -121,7 +120,7 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
           );
 
           // QR码数据缺失时设置错误状态
-          setConnectionState((prev) => ({
+          setConnectionState(prev => ({
             ...prev,
             error: new Error('QR code data missing from WebSocket event'),
             status: ConnectionStatus.ERROR,
@@ -129,7 +128,7 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
         }
       } catch (error) {
         console.error('[ConnectionState] Error extracting QR code from event:', error);
-        setConnectionState((prev) => ({
+        setConnectionState(prev => ({
           ...prev,
           error: error as Error,
           status: ConnectionStatus.ERROR,
@@ -140,7 +139,7 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
     // 重连尝试
     const handleReconnectAttempt = (data: { attempt: number; delay: number }) => {
       console.log(`[ConnectionState] Reconnect attempt ${data.attempt}, delay: ${data.delay}ms`);
-      setConnectionState((prev) => ({
+      setConnectionState(prev => ({
         ...prev,
         reconnectAttempts: data.attempt,
         status: ConnectionStatus.CONNECTING,
@@ -150,7 +149,7 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
     // 重连失败
     const handleReconnectFailed = () => {
       console.error('[ConnectionState] Reconnect failed');
-      setConnectionState((prev) => ({
+      setConnectionState(prev => ({
         ...prev,
         status: ConnectionStatus.ERROR,
         error: new Error('Max reconnect attempts reached'),
@@ -180,11 +179,11 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
 
   // 辅助方法
   const updateStatus = (status: ConnectionStatus) => {
-    setConnectionState((prev) => ({ ...prev, status }));
+    setConnectionState(prev => ({ ...prev, status }));
   };
 
   const updateQRCode = (qrCode: string | null) => {
-    setConnectionState((prev) => ({
+    setConnectionState(prev => ({
       ...prev,
       qrCode,
       status: qrCode ? ConnectionStatus.QR_CODE_READY : prev.status,
@@ -192,7 +191,7 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
   };
 
   const updateError = (error: Error | null) => {
-    setConnectionState((prev) => ({
+    setConnectionState(prev => ({
       ...prev,
       error,
       status: error ? ConnectionStatus.ERROR : prev.status,
@@ -200,14 +199,14 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
   };
 
   const incrementReconnectAttempts = () => {
-    setConnectionState((prev) => ({
+    setConnectionState(prev => ({
       ...prev,
       reconnectAttempts: prev.reconnectAttempts + 1,
     }));
   };
 
   const resetReconnectAttempts = () => {
-    setConnectionState((prev) => ({
+    setConnectionState(prev => ({
       ...prev,
       reconnectAttempts: 0,
     }));
@@ -229,7 +228,7 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
       if (stored) {
         const parsedState = JSON.parse(stored) as ConnectionState;
         // 只恢复特定字段,不恢复临时状态
-        setConnectionState((prev) => ({
+        setConnectionState(prev => ({
           ...prev,
           instanceKey: parsedState.instanceKey,
           lastConnected: parsedState.lastConnected ? new Date(parsedState.lastConnected) : null,

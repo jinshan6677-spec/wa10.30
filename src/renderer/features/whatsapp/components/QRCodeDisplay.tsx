@@ -207,7 +207,7 @@ export const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
   useEffect(() => {
     if (connectionState.status === ConnectionStatus.QR_CODE_READY && secondsRemaining > 0) {
       const timer = setInterval(() => {
-        setSecondsRemaining((prev) => {
+        setSecondsRemaining(prev => {
           if (prev <= 1) {
             // 倒计时结束,重置显示 (Evolution API 会自动发送新 QR)
             // 不再主动调用 onRefresh(),避免与 Evolution API 的自动刷新冲突

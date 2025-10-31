@@ -18,9 +18,7 @@ interface AppInfo {
 
 const WhatsAppConnection: React.FC = () => {
   const INSTANCE_NAME = 'whatsapp_main';
-  const {
-    isLoading, refreshQRCode, disconnect, connectWithHybridStrategy,
-  } = useEvolutionAPI();
+  const { isLoading, refreshQRCode, disconnect, connectWithHybridStrategy } = useEvolutionAPI();
   const { connectionState } = useConnectionState();
   const [hasInitialized, setHasInitialized] = useState(false);
 

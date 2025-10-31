@@ -93,7 +93,7 @@ export class SecurityService {
   async listAccounts(): Promise<string[]> {
     try {
       const credentials = await keytar.findCredentials(this.serviceName);
-      return credentials.map((cred) => cred.account);
+      return credentials.map(cred => cred.account);
     } catch (error) {
       console.error('[Security] Failed to list accounts:', error);
       throw new Error(`Failed to list accounts: ${(error as Error).message}`);

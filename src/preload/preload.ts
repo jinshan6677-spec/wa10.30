@@ -30,18 +30,23 @@ const electronAPI: ElectronAPI = {
   closeWindow: () => ipcRenderer.invoke('window:close'),
 
   // 对话框
-  showMessageBox: (options) => ipcRenderer.invoke('dialog:showMessageBox', options),
+  showMessageBox: options => ipcRenderer.invoke('dialog:showMessageBox', options),
 
   // 外部链接
-  openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url),
+  openExternal: url => ipcRenderer.invoke('shell:openExternal', url),
 
   // Evolution API - WhatsApp 连接
   evolutionAPI: {
-    createInstance: (instanceName: string) => ipcRenderer.invoke('evolution-api:createInstance', instanceName),
-    getQRCode: (instanceName: string) => ipcRenderer.invoke('evolution-api:getQRCode', instanceName),
-    getConnectionStatus: (instanceName: string) => ipcRenderer.invoke('evolution-api:getConnectionStatus', instanceName),
-    disconnect: (instanceName: string, options?: any) => ipcRenderer.invoke('evolution-api:disconnect', instanceName, options),
-    connectWebSocket: (instanceName: string) => ipcRenderer.invoke('evolution-api:connectWebSocket', instanceName),
+    createInstance: (instanceName: string) =>
+      ipcRenderer.invoke('evolution-api:createInstance', instanceName),
+    getQRCode: (instanceName: string) =>
+      ipcRenderer.invoke('evolution-api:getQRCode', instanceName),
+    getConnectionStatus: (instanceName: string) =>
+      ipcRenderer.invoke('evolution-api:getConnectionStatus', instanceName),
+    disconnect: (instanceName: string, options?: any) =>
+      ipcRenderer.invoke('evolution-api:disconnect', instanceName, options),
+    connectWebSocket: (instanceName: string) =>
+      ipcRenderer.invoke('evolution-api:connectWebSocket', instanceName),
     disconnectWebSocket: () => ipcRenderer.invoke('evolution-api:disconnectWebSocket'),
   },
 
@@ -60,7 +65,7 @@ const electronAPI: ElectronAPI = {
     }
   },
 
-  removeAllListeners: (channel) => {
+  removeAllListeners: channel => {
     if (validChannels.includes(channel)) {
       ipcRenderer.removeAllListeners(channel);
     }

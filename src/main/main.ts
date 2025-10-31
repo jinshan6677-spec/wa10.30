@@ -2,9 +2,7 @@
 import * as path from 'path';
 
 import * as dotenv from 'dotenv';
-import {
-  app, BrowserWindow, Menu, shell, ipcMain, dialog,
-} from 'electron';
+import { app, BrowserWindow, Menu, shell, ipcMain, dialog } from 'electron';
 // import * as isDev from 'electron-is-dev'; // Temporarily disabled for testing
 
 import { registerIPCHandlers, cleanupEvolutionAPI } from './ipc-handlers';

@@ -1,6 +1,4 @@
-import {
-  useState, useCallback, useRef, useEffect,
-} from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 import { ConnectionStatus } from '../../../../shared/types/evolution-api.types';
 import { useConnectionState } from '../contexts/ConnectionStateContext';

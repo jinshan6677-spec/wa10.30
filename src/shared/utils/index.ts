@@ -222,8 +222,8 @@ export class Storage {
 
   static clear(): void {
     try {
-      const keys = Object.keys(localStorage).filter((key) => key.startsWith(this.prefix));
-      keys.forEach((key) => localStorage.removeItem(key));
+      const keys = Object.keys(localStorage).filter(key => key.startsWith(this.prefix));
+      keys.forEach(key => localStorage.removeItem(key));
     } catch (error) {
       Logger.getInstance().error('清空存储失败', { error });
     }
@@ -231,8 +231,7 @@ export class Storage {
 }
 
 // 防抖和节流
-export function debounce<T extends (
-  ...args: any[]) => any>(
+export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number,
 ): (...args: Parameters<T>) => void {
@@ -249,8 +248,7 @@ export function debounce<T extends (
   };
 }
 
-export function throttle<T extends (
-  ...args: any[]) => any>(
+export function throttle<T extends (...args: any[]) => any>(
   func: T,
   limit: number,
 ): (...args: Parameters<T>) => void {

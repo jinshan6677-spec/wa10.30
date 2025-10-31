@@ -61,11 +61,11 @@ export class EvolutionAPIService {
 
     // 添加请求拦截器
     this.axiosInstance.interceptors.request.use(
-      (axiosConfig) => {
+      axiosConfig => {
         console.log('[Evolution API] Request:', axiosConfig.method?.toUpperCase(), axiosConfig.url);
         return axiosConfig;
       },
-      (error) => {
+      error => {
         console.error('[Evolution API] Request error:', error);
         return Promise.reject(error);
       },
@@ -73,7 +73,7 @@ export class EvolutionAPIService {
 
     // 添加响应拦截器
     this.axiosInstance.interceptors.response.use(
-      (response) => {
+      response => {
         console.log('[Evolution API] Response:', response.status, response.config.url);
         return response;
       },
@@ -224,12 +224,12 @@ export class EvolutionAPIService {
       this.emit('websocket:connected');
     });
 
-    this.socket.on('disconnect', (reason) => {
+    this.socket.on('disconnect', reason => {
       console.log('[Evolution API] WebSocket disconnected:', reason);
       this.emit('websocket:disconnected', { reason });
     });
 
-    this.socket.on('connect_error', (error) => {
+    this.socket.on('connect_error', error => {
       console.error('[Evolution API] WebSocket connect error:', error);
       this.handleReconnect();
       this.emit('websocket:error', { error });
@@ -277,8 +277,9 @@ export class EvolutionAPIService {
       this.reconnectConfig.maxDelay,
     );
 
-    const reconnectMsg = `[Evolution API] Reconnecting in ${delay}ms `
-      + `(attempt ${this.reconnectAttempts}/${this.reconnectConfig.maxAttempts})`;
+    const reconnectMsg =
+      `[Evolution API] Reconnecting in ${delay}ms ` +
+      `(attempt ${this.reconnectAttempts}/${this.reconnectConfig.maxAttempts})`;
     console.log(reconnectMsg);
 
     this.emit('reconnect:attempt', { attempt: this.reconnectAttempts, delay });
@@ -340,7 +341,7 @@ export class EvolutionAPIService {
   private emit(event: string, data?: unknown): void {
     const handlers = this.eventHandlers.get(event);
     if (handlers) {
-      handlers.forEach((handler) => {
+      handlers.forEach(handler => {
         try {
           handler(data);
         } catch (error) {
