@@ -1,0 +1,131 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>项目初始化和基础架构搭建</title>
+    <status>drafted</status>
+    <generatedAt>2025-10-31</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-1-project-initialization.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>开发工程师</asA>
+    <iWant>建立Electron项目基础架构和开发环境</iWant>
+    <soThat>为整个应用提供稳定的技术基础</soThat>
+    <tasks>- [ ] 任务1: 创建Electron项目基础结构 (AC: #1, #5)
+  - [ ] 子任务1.1: 初始化package.json和项目依赖
+  - [ ] 子任务1.2: 创建主进程文件(main.js)和基本窗口配置
+  - [ ] 子任务1.3: 创建渲染进程入口文件和基础HTML模板
+  - [ ] 子任务1.4: 创建预加载脚本(preload.js)用于安全通信
+  - [ ] 子任务1.5: 建立项目目录结构(src, public, build等)
+
+- [ ] 任务2: 配置TypeScript和构建工具链 (AC: #2)
+  - [ ] 子任务2.1: 安装和配置TypeScript编译器
+  - [ ] 子任务2.2: 配置Webpack构建系统
+  - [ ] 子任务2.3: 设置开发和生产环境的构建配置
+  - [ ] 子任务2.4: 配置热重载和开发服务器
+
+- [ ] 任务3: 设置代码质量控制工具 (AC: #3)
+  - [ ] 子任务3.1: 配置ESLint规则和TypeScript集成
+  - [ ] 子任务3.2: 配置Prettier代码格式化
+  - [ ] 子任务3.3: 设置Git hooks(pre-commit, pre-push)
+  - [ ] 子任务3.4: 配置编辑器设置(.vscode)
+
+- [ ] 任务4: 配置构建脚本和环境 (AC: #4)
+  - [ ] 子任务4.1: 创建npm scripts用于开发、构建、测试
+  - [ ] 子任务4.2: 配置环境变量管理
+  - [ ] 子任务4.3: 设置应用打包配置
+  - [ ] 子任务4.4: 配置CI/CD基础脚本
+
+- [ ] 任务5: 完善项目文档 (AC: #5)
+  - [ ] 子任务5.1: 编写详细的README.md文档
+  - [ ] 子任务5.2: 创建开发者指南和贡献规范
+  - [ ] 子任务5.3: 建立API文档模板
+  - [ ] 子任务5.4: 创建项目变更日志模板</tasks>
+  </story>
+
+  <acceptanceCriteria>1. 创建Electron项目结构，包含主进程、渲染进程和预加载脚本
+2. 配置TypeScript、Webpack/Babel构建工具链
+3. 设置ESLint、Prettier代码规范和质量控制
+4. 配置开发、测试、生产环境构建脚本
+5. 建立项目文档结构和README.md</acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>WhatsApp语言增强层 - Epic Breakdown</title>
+        <section>Epic 1: 项目基础架构与WhatsApp核心功能</section>
+        <snippet>建立WhatsApp语言增强层的完整技术基础，通过Electron框架搭建跨平台桌面应用，集成Evolution API实现WhatsApp核心功能</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>WhatsApp语言增强层 - Product Requirements Document</title>
+        <section>Functional Requirements</section>
+        <snippet>基于Electron和Evolution API构建稳定、可扩展的桌面应用基础，为未来多平台扩展做准备</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>WhatsApp语言增强层 - Product Requirements Document</title>
+        <section>Non-Functional Requirements</section>
+        <snippet>跨平台支持：Windows 10+、macOS 10.15+、Ubuntu 18.04+，兼容性：Evolution API 2.3.6版本，预留升级接口</snippet>
+      </doc>
+    </docs>
+    <code>
+      <!-- No existing code found - this is the first story -->
+    </code>
+    <dependencies>
+      <!-- No existing dependencies detected - will be created by this story -->
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>
+      <name>项目架构要求</name>
+      <type>architectural</type>
+      <description>基于Electron最新稳定版本，使用TypeScript进行类型安全开发，采用模块化架构设计，支持跨平台部署</description>
+    </constraint>
+    <constraint>
+      <name>技术栈约束</name>
+      <type>technical</type>
+      <description>前端框架: React 18+ (后续故事使用)，状态管理: Redux Toolkit配置，构建工具: Webpack 5+ 配置</description>
+    </constraint>
+    <constraint>
+      <name>开发环境标准</name>
+      <type>development</type>
+      <description>Node.js 18+ LTS版本，代码规范: Airbnb ESLint配置 + Prettier，测试框架: Jest + React Testing Library</description>
+    </constraint>
+    <constraint>
+      <name>安全考虑</name>
+      <type>security</type>
+      <description>主进程和渲染进程通信使用contextBridge，禁用Node.js集成在渲染进程中，配置内容安全策略(CSP)</description>
+    </constraint>
+    <constraint>
+      <name>项目结构规范</name>
+      <type>structural</type>
+      <description>wa10.30/├── src/(main/renderer/preload/shared) ├── public/ ├── build/ ├── docs/ └── tests/</description>
+    </constraint>
+  </constraints>
+  <interfaces>
+    <!-- No existing interfaces - will be created by this story -->
+  </interfaces>
+  <tests>
+    <standards>使用Jest + React Testing Library作为主要测试框架，配置单元测试、集成测试和端到端测试。遵循测试驱动开发(TDD)方法，确保代码质量和功能正确性。</standards>
+    <locations>
+      <location>tests/unit/</location>
+      <location>tests/integration/</location>
+      <location>tests/e2e/</location>
+      <location>**/*.test.ts</location>
+      <location>**/*.spec.ts</location>
+    </locations>
+    <ideas>
+      <idea ac="1">测试Electron主进程窗口创建和配置</idea>
+      <idea ac="1">验证渲染进程和预加载脚本的安全通信</idea>
+      <idea ac="2">测试TypeScript编译和Webpack构建流程</idea>
+      <idea ac="3">验证ESLint和Prettier代码质量控制</idea>
+      <idea ac="4">测试开发、测试、生产环境构建脚本</idea>
+      <idea ac="5">验证项目文档结构和README.md完整性</idea>
+    </ideas>
+  </tests>
+</story-context>

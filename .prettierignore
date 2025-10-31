@@ -1,0 +1,38 @@
+# 构建输出
+build/
+dist/
+release/
+coverage/
+
+# 依赖
+node_modules/
+
+# 日志文件
+*.log
+
+# 环境变量文件
+.env*
+
+# 临时文件
+*.tmp
+*.temp
+
+# 版本控制
+.git/
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 特定文件格式
+*.min.js
+*.min.css
+package-lock.json
+yarn.lock
+
+# 配置文件（已有自己的格式）
+.eslintrc.js
+.prettierrc
+tsconfig.json
+webpack*.js
+postcss.config.js

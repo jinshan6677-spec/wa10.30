@@ -1,0 +1,88 @@
+{
+  "compilerOptions": {
+    /* 基本选项 */
+    "target": "ES2020",                    // 指定ECMAScript目标版本
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES6"
+    ],                                   // 指定要包含在编译中的库文件
+    "allowJs": true,                      // 允许编译JavaScript文件
+    "checkJs": false,                     // 报告JavaScript文件中的错误
+    "jsx": "react-jsx",                   // 指定JSX代码生成
+    "declaration": true,                  // 生成相应的'.d.ts'文件
+    "declarationMap": true,               // 为每个对应的'.d.ts'文件生成source map
+    "sourceMap": true,                    // 生成相应的'.map'文件
+    "outDir": "./build",                  // 指定输出目录
+    "rootDir": "./src",                   // 指定根目录
+    "removeComments": true,               // 删除编译后的所有注释
+    "noEmit": false,                      // 不生成输出文件
+    "importHelpers": true,                // 从tslib导入辅助函数
+    "downlevelIteration": true,           // 当目标是ES3或ES5时，为迭代提供全面支持
+
+    /* 严格的类型检查选项 */
+    "strict": true,                       // 启用所有严格类型检查选项
+    "noImplicitAny": true,                // 在表达式和声明上有隐含的any类型时报错
+    "strictNullChecks": true,             // 严格的null检查
+    "strictFunctionTypes": true,          // 严格的函数类型
+    "strictBindCallApply": true,          // 严格的bind/call/apply检查
+    "strictPropertyInitialization": true, // 严格的属性初始化检查
+    "noImplicitThis": true,               // 在this表达式中隐含any类型时报错
+    "alwaysStrict": true,                 // 以严格模式解析每个文件
+
+    /* 额外的检查 */
+    "noUnusedLocals": true,               // 若有未使用的局部变量则报错
+    "noUnusedParameters": true,           // 若有未使用的参数则报错
+    "noImplicitReturns": true,            // 并非函数分支返回时报告错误
+    "noFallthroughCasesInSwitch": true,   // 报告switch语句的fallthrough错误
+
+    /* 模块解析选项 */
+    "moduleResolution": "node",           // 指定模块解析策略
+    "baseUrl": "./",                      // 用于解析非绝对模块名称的基准目录
+    "paths": {
+      "@/*": ["src/*"],
+      "@shared/*": ["src/shared/*"],
+      "@main/*": ["src/main/*"],
+      "@renderer/*": ["src/renderer/*"],
+      "@preload/*": ["src/preload/*"]
+    },                                   // 模块名到基于baseUrl的路径映射的列表
+    "allowSyntheticDefaultImports": true, // 允许从没有默认导出的模块中默认导入
+    "esModuleInterop": true,              // 通过为所有导入创建命名空间对象来启用CommonJS和ES模块之间的互操作性
+    "preserveSymlinks": true,             // 不解析符号链接的实际路径
+    "forceConsistentCasingInFileNames": true, // 禁止对同一文件使用不一致的大小写引用
+
+    /* Source Map选项 */
+    "sourceRoot": "./",                   // 指定调试器应该找到TypeScript文件而不是源文件的位置
+
+    /* 实验性选项 */
+    "experimentalDecorators": true,       // 启用对ES装饰器的实验性支持
+    "emitDecoratorMetadata": true,        // 为装饰器启用元数据发射
+
+    /* 高级选项 */
+    "skipLibCheck": true,                 // 跳过对声明文件的类型检查
+    "resolveJsonModule": true,            // 允许导入.json文件
+    "isolatedModules": true,              // 将每个文件作为单独的模块传输
+
+    /* 类型定义 */
+    "types": [
+      "node",
+      "jest",
+      "electron",
+      "@testing-library/jest-dom"
+    ]
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "dist",
+    "release",
+    "tests",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/*.test.tsx",
+    "**/*.spec.tsx"
+  ]
+}

@@ -1,0 +1,298 @@
+# BMM Sprint Status Tracker
+# Generated for WhatsApp语言增强层 Project
+
+# Project Metadata
+project_name: "WhatsApp语言增强层"
+project_level: 3
+epic_count: 5
+total_stories: 43
+created_date: "2025-10-30"
+last_updated: "2025-10-31"
+
+# Sprint Configuration
+sprint_duration: "2 weeks"
+current_sprint: 1
+sprint_start_date: "2025-10-30"
+
+# Development Status Tracking
+development_status:
+  # Epic 1: 项目基础架构与WhatsApp核心功能
+  epic-1:
+    title: "项目基础架构与WhatsApp核心功能"
+    status: "in_progress"
+    stories:
+      "1-1-project-initialization":
+        title: "项目初始化和基础架构搭建"
+        status: "done"
+        assigned_to: "dev"
+        priority: "high"
+        estimated_hours: 8
+        actual_hours: 8
+        started_date: "2025-10-31"
+        completed_date: "2025-10-31"
+        notes: "APPROVED - Systematic validation complete: 5/5 ACs implemented, 27/27 tasks verified, 0 errors, 47/47 tests passing. Ready for production."
+
+      "1-2-evolution-api-integration":
+        title: "Evolution API集成和认证机制"
+        status: "done"
+        assigned_to: "dev"
+        priority: "high"
+        estimated_hours: 12
+        actual_hours: 14
+        started_date: "2025-10-31"
+        completed_date: "2025-10-31"
+        notes: "APPROVED ✅ - Review #4 + Test Fix: 5/5 ACs implemented (100%), 25/25 tasks verified, QR refresh issue RESOLVED, 61/61 tests passing (100% ✅), build successful, app runs correctly. Evolution API WebSocket连接正常，QR码自动更新无冲突。所有测试通过，无遗留问题。"
+
+      "1-3-basic-ui-framework":
+        title: "基础UI框架和布局结构"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "high"
+        estimated_hours: 16
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "1-4-chat-list-management":
+        title: "聊天列表和联系人管理"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "medium"
+        estimated_hours: 20
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "1-5-message-reception":
+        title: "消息接收和基础显示"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "medium"
+        estimated_hours: 16
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "1-6-message-sending":
+        title: "消息发送功能"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "medium"
+        estimated_hours: 14
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "1-7-media-file-handling":
+        title: "媒体文件处理（图片和视频）"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "medium"
+        estimated_hours: 18
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "1-8-voice-messages":
+        title: "语音消息功能"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "medium"
+        estimated_hours: 16
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "1-9-file-transfer":
+        title: "文件传输和文档处理"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "low"
+        estimated_hours: 12
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "1-10-group-features":
+        title: "群组功能实现"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "low"
+        estimated_hours: 20
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "1-11-single-account-lifecycle":
+        title: "单账号实例生命周期管理"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "medium"
+        estimated_hours: 10
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "1-12-push-notifications":
+        title: "推送通知和系统集成"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "low"
+        estimated_hours: 14
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+  # Epic 2: 核心翻译引擎集成
+  epic-2:
+    title: "核心翻译引擎集成"
+    status: "planned"
+    stories:
+      "2-1-translation-service-architecture":
+        title: "翻译服务架构设计和基础配置"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "high"
+        estimated_hours: 12
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "2-2-ai-translation-integration":
+        title: "AI翻译引擎集成"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "high"
+        estimated_hours: 16
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "2-3-language-auto-detection":
+        title: "语言自动检测和识别"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "medium"
+        estimated_hours: 14
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "2-4-translation-ui-integration":
+        title: "翻译界面集成和显示控制"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "high"
+        estimated_hours: 18
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "2-5-real-time-translation":
+        title: "实时文本翻译功能"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "high"
+        estimated_hours: 20
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "2-6-translation-history":
+        title: "翻译历史记录和管理"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "medium"
+        estimated_hours: 12
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "2-7-translation-quality-control":
+        title: "翻译质量控制和用户反馈"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "medium"
+        estimated_hours: 16
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+      "2-8-selective-translation":
+        title: "选择性翻译和成本优化"
+        status: "backlog"
+        assigned_to: "dev"
+        priority: "low"
+        estimated_hours: 14
+        actual_hours: 0
+        started_date: ""
+        completed_date: ""
+        notes: ""
+
+# Epic 3-5 的占位符（简化展示）
+epic-3:
+  title: "多模态翻译功能"
+  status: "planned"
+  story_count: 10
+
+epic-4:
+  title: "智能化功能与用户体验优化"
+  status: "planned"
+  story_count: 7
+
+epic-5:
+  title: "高级功能与企业级特性"
+  status: "planned"
+  story_count: 6
+
+# STATUS DEFINITIONS:
+# backlog: 等待开始开发的任务
+# drafted: 故事已创建，准备开始开发
+# in_progress: 正在开发中
+# review: 开发完成，等待审查
+# done: 开发完成并通过审查
+# blocked: 被阻塞，无法继续开发
+
+# Sprint Summary Statistics
+sprint_summary:
+  total_stories: 43
+  backlog_stories: 40
+  drafted_stories: 0
+  ready_for_dev_stories: 0
+  in_progress_stories: 0
+  review_stories: 0
+  done_stories: 2
+  blocked_stories: 0
+
+  total_estimated_hours: 688
+  total_actual_hours: 22
+
+  epic_progress:
+    epic-1: 17% # 2/12 stories completed
+    epic-2: 0% # 0/8 stories completed
+    epic-3: 0% # 0/10 stories completed
+    epic-4: 0% # 0/7 stories completed
+    epic-5: 0% # 0/6 stories completed
+
+# Next Actions
+next_actions:
+  - "✅ COMPLETED: Fixed failing WebSocket test in Story 1.2 - 61/61 tests passing (100%)"
+  - "开始开发 Story 1.3: 基础UI框架和布局结构"
+  - "考虑增强Story 1.2的组件级单元测试覆盖率 (future sprint)"

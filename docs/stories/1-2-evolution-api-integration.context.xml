@@ -1,0 +1,260 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>2</storyId>
+    <title>Evolution API集成和认证机制</title>
+    <status>drafted</status>
+    <generatedAt>2025-10-31</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-2-evolution-api-integration.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>开发工程师</asA>
+    <iWant>集成Evolution API并建立WhatsApp连接认证机制</iWant>
+    <soThat>应用能够安全地连接到WhatsApp服务</soThat>
+    <tasks>
+      <task id="1" acs="#1, #5">
+        <title>集成Evolution API和依赖配置</title>
+        <subtasks>
+          <subtask id="1.1">配置Docker Compose文件运行Evolution API v2.1.0</subtask>
+          <subtask id="1.2">安装axios和socket.io-client用于API通信</subtask>
+          <subtask id="1.3">创建Evolution API服务类封装REST和WebSocket通信</subtask>
+          <subtask id="1.4">实现API密钥配置和环境变量管理</subtask>
+          <subtask id="1.5">集成node-keytar实现API密钥系统密钥链存储</subtask>
+        </subtasks>
+      </task>
+      <task id="2" acs="#2">
+        <title>实现WhatsApp实例创建和二维码生成</title>
+        <subtasks>
+          <subtask id="2.1">实现Evolution API实例创建接口调用</subtask>
+          <subtask id="2.2">实现二维码获取和Base64编码处理</subtask>
+          <subtask id="2.3">创建二维码显示UI组件(QRCodeDisplay.tsx)</subtask>
+          <subtask id="2.4">实现二维码刷新逻辑(60秒自动刷新)</subtask>
+          <subtask id="2.5">添加手动重新获取二维码功能</subtask>
+        </subtasks>
+      </task>
+      <task id="3" acs="#3">
+        <title>建立连接状态管理系统</title>
+        <subtasks>
+          <subtask id="3.1">定义连接状态类型(connecting/connected/disconnected/error)</subtask>
+          <subtask id="3.2">创建ConnectionStateContext用于全局状态管理</subtask>
+          <subtask id="3.3">实现WebSocket事件监听处理连接状态变化</subtask>
+          <subtask id="3.4">创建ConnectionStatusBar组件显示当前连接状态</subtask>
+          <subtask id="3.5">实现状态持久化到本地存储</subtask>
+        </subtasks>
+      </task>
+      <task id="4" acs="#4">
+        <title>实现连接超时和自动重连机制</title>
+        <subtasks>
+          <subtask id="4.1">实现连接超时检测(30秒超时阈值)</subtask>
+          <subtask id="4.2">设计指数退避重连策略(1s, 2s, 4s, 8s, 最大30s)</subtask>
+          <subtask id="4.3">实现最大重连次数限制(5次后提示用户)</subtask>
+          <subtask id="4.4">添加网络状态检测避免无网络时重连</subtask>
+          <subtask id="4.5">实现重连过程UI反馈和用户提示</subtask>
+        </subtasks>
+      </task>
+      <task id="5" acs="#1-5">
+        <title>测试和错误处理</title>
+        <subtasks>
+          <subtask id="5.1">编写Evolution API服务单元测试</subtask>
+          <subtask id="5.2">编写二维码生成和显示集成测试</subtask>
+          <subtask id="5.3">测试连接状态转换的各种场景</subtask>
+          <subtask id="5.4">测试自动重连机制的边界条件</subtask>
+          <subtask id="5.5">实现全面的错误处理和用户友好的错误提示</subtask>
+        </subtasks>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">集成Evolution API 2.3.6 SDK和相关依赖</criterion>
+    <criterion id="2">实现二维码生成和显示功能</criterion>
+    <criterion id="3">建立WhatsApp连接状态管理(连接中、已连接、断开)</criterion>
+    <criterion id="4">实现连接超时和自动重连机制</criterion>
+    <criterion id="5">建立API密钥和认证信息安全存储</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR006: 单账号登录和会话管理</section>
+        <snippet>严格单账号单实例控制,状态复用机制,二维码刷新机制(60秒周期),会话安全控制</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>NFR003: 安全性和隐私保护</section>
+        <snippet>数据加密(AES-256),API通信安全(HTTPS/TLS 1.3),API密钥安全管理,符合GDPR/CCPA合规</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>Security Architecture - 分层安全架构</section>
+        <snippet>系统密钥链集成(node-keytar),PBKDF2密钥派生,AES-256加密服务,满足GDPR合规要求</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>ADR-002: Evolution API Docker集成方案</section>
+        <snippet>使用官方Docker镜像运行Evolution API v2.1.0,通过REST和WebSocket通信,数据隐私本地控制,版本隔离易于管理</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>Project Structure - services目录</section>
+        <snippet>evolution-api.service.ts(Evolution API集成),security.service.ts(安全和加密服务),error-handler.service.ts(错误处理服务)</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Epic 1, Story 1.2: Evolution API集成和认证机制</section>
+        <snippet>集成Evolution API 2.3.6 SDK,实现二维码生成显示,建立连接状态管理,实现超时和自动重连,API密钥安全存储</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/preload/preload.ts</path>
+        <kind>preload-script</kind>
+        <symbol>ElectronAPI</symbol>
+        <lines>1-111</lines>
+        <reason>现有 IPC 桥接接口,需要扩展添加 Evolution API 相关的频道和方法</reason>
+      </artifact>
+      <artifact>
+        <path>src/shared/types/index.ts</path>
+        <kind>types</kind>
+        <symbol>Global Type Definitions</symbol>
+        <lines>1-83</lines>
+        <reason>现有类型定义基础,需要添加 Evolution API 相关类型(连接状态、API响应等)</reason>
+      </artifact>
+      <artifact>
+        <path>src/shared/config/environment.ts</path>
+        <kind>config</kind>
+        <symbol>Environment</symbol>
+        <lines>1-113</lines>
+        <reason>现有环境配置系统,需要扩展添加 Evolution API URL、端口等配置项</reason>
+      </artifact>
+      <artifact>
+        <path>src/main/main.ts</path>
+        <kind>main-process</kind>
+        <symbol>Application</symbol>
+        <lines>n/a</lines>
+        <reason>主进程入口,需要添加 Evolution API 相关的 IPC handlers</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <existing>
+          <package name="electron" version="^33.0.0">桌面应用框架</package>
+          <package name="react" version="^18.3.1">UI框架</package>
+          <package name="react-dom" version="^18.3.1">React DOM渲染</package>
+          <package name="typescript" version="^5.6.3">类型系统</package>
+        </existing>
+        <required>
+          <package name="axios" version="^1.7.7">HTTP客户端,用于Evolution API REST调用</package>
+          <package name="socket.io-client" version="^4.8.1">WebSocket客户端,用于Evolution API实时事件监听</package>
+          <package name="node-keytar" version="^8.1.0">系统密钥链集成,用于API密钥安全存储</package>
+        </required>
+      </node>
+      <docker>
+        <service name="Evolution API" version="v2.1.0" image="evoapicloud/evolution-api:latest">
+          WhatsApp API服务,Docker部署,端口8080:8080
+        </service>
+      </docker>
+      <frameworks>
+        <framework name="Webpack" version="^5.95.0">构建系统</framework>
+        <framework name="Jest" version="^29.7.0">测试框架</framework>
+        <framework name="ESLint" version="^8.57.0">代码规范</framework>
+      </frameworks>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>使用 Docker 部署 Evolution API v2.1.0,端口映射 8080:8080</constraint>
+    <constraint>API 密钥必须使用 node-keytar 集成系统密钥链存储,不得明文存储在配置文件或代码中</constraint>
+    <constraint>本地数据库中的敏感字段使用 AES-256 加密</constraint>
+    <constraint>内存中的敏感数据使用后立即清理</constraint>
+    <constraint>连接超时阈值为 30 秒</constraint>
+    <constraint>自动重连使用指数退避策略:1s, 2s, 4s, 8s, 最大30s</constraint>
+    <constraint>最大重连次数限制为 5 次</constraint>
+    <constraint>二维码自动刷新周期为 60 秒</constraint>
+    <constraint>复用 Story 1.1 已建立的项目结构和构建系统</constraint>
+    <constraint>避免使用 TypeScript any 类型,遵循现有代码规范(ESLint + Prettier)</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>Evolution API REST - Instance Creation</name>
+      <kind>REST API</kind>
+      <signature>POST /instance/create
+Headers: { apikey: string }
+Body: { instanceName: string, qrcode: boolean }
+Response: { instance: { instanceName: string, status: string } }</signature>
+      <path>docs/architecture.md (Evolution API集成)</path>
+    </interface>
+    <interface>
+      <name>Evolution API REST - Get QR Code</name>
+      <kind>REST API</kind>
+      <signature>GET /instance/qrcode/:instanceName
+Headers: { apikey: string }
+Response: { qrcode: { base64: string, code: string } }</signature>
+      <path>docs/architecture.md (Evolution API集成)</path>
+    </interface>
+    <interface>
+      <name>Evolution API WebSocket - Connection Events</name>
+      <kind>WebSocket</kind>
+      <signature>Events: connection.update, qr_code_updated, qr_code_expired
+Payload: { status: string, qr?: string, instance: string }</signature>
+      <path>docs/architecture.md (Evolution API集成)</path>
+    </interface>
+    <interface>
+      <name>IPC - Evolution API Bridge</name>
+      <kind>IPC Channel</kind>
+      <signature>需要在 preload.ts 添加新的 IPC 方法:
+- evolutionAPI:createInstance(instanceName)
+- evolutionAPI:getQRCode(instanceName)
+- evolutionAPI:getConnectionStatus()
+- evolutionAPI:disconnect()</signature>
+      <path>src/preload/preload.ts</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>Story 1.1 已建立完整的测试框架:Jest 29.7.0 + React Testing Library 16.0.1,配置文件为 jest.config.js。测试文件命名规范为 *.test.ts 或 *.test.tsx,放置在被测试文件同目录。使用 jest.mock() 模拟外部依赖和 API 响应。主进程代码使用 Node.js 环境测试,渲染进程组件使用 jsdom 环境测试。所有47个测试通过,覆盖率要求:语句覆盖率>80%,分支覆盖率>75%。</standards>
+    <locations>
+      <location>src/main/services/*.service.test.ts - 服务层单元测试</location>
+      <location>src/renderer/features/whatsapp/components/*.test.tsx - React组件测试</location>
+      <location>src/renderer/features/whatsapp/hooks/*.test.ts - 自定义Hooks测试</location>
+      <location>__tests__/integration/ - 集成测试目录</location>
+    </locations>
+    <ideas>
+      <idea ac="1">
+        <test>Evolution API服务类初始化测试:验证API客户端正确配置,API密钥从系统密钥链读取成功</test>
+        <test>API调用重试逻辑测试:模拟网络失败,验证自动重试机制和指数退避策略</test>
+        <test>API密钥安全存储测试:验证node-keytar正确存储和检索密钥,不泄漏到日志或内存dump</test>
+      </idea>
+      <idea ac="2">
+        <test>二维码生成和显示测试:模拟Evolution API响应,验证QRCodeDisplay组件正确渲染Base64图片</test>
+        <test>二维码刷新逻辑测试:验证60秒自动刷新计时器,手动刷新按钮功能</test>
+        <test>二维码过期事件测试:模拟qr_code_expired事件,验证UI提示用户刷新</test>
+      </idea>
+      <idea ac="3">
+        <test>连接状态转换测试:验证状态机从disconnected→connecting→qr_code_ready→connected的完整流程</test>
+        <test>ConnectionStateContext测试:验证全局状态正确传递到所有消费组件</test>
+        <test>WebSocket事件处理测试:模拟connection.update事件,验证状态同步</test>
+        <test>状态持久化测试:验证连接状态正确保存到本地存储,应用重启后恢复</test>
+      </idea>
+      <idea ac="4">
+        <test>连接超时检测测试:模拟30秒无响应,验证超时错误触发</test>
+        <test>自动重连机制测试:验证指数退避策略(1s,2s,4s,8s,30s),最大5次重连</test>
+        <test>网络状态检测测试:模拟离线状态,验证不发起重连请求</test>
+        <test>重连UI反馈测试:验证重连倒计时和剩余尝试次数正确显示</test>
+      </idea>
+      <idea ac="5">
+        <test>Docker容器启动测试:验证docker-compose.yml配置,Evolution API容器健康检查</test>
+        <test>完整连接流程集成测试:从实例创建→二维码获取→扫码连接→状态更新的端到端测试</test>
+        <test>错误处理测试:验证各种失败场景的错误提示和用户引导</test>
+      </idea>
+    </ideas>
+  </tests>
+</story-context>
