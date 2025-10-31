@@ -117,6 +117,7 @@
     "productName": "WhatsApp语言增强层",
     "copyright": "Copyright © 2025 BMad Team",
     "npmRebuild": false,
+    "icon": "assets/icon.png",
     "directories": {
       "output": "release"
     },
