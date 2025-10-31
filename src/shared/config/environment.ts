@@ -118,14 +118,14 @@ class Environment {
 
   // 获取应用程序数据目录
   static getAppDataPath(): string {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require, no-restricted-syntax
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require, no-restricted-syntax, import/no-extraneous-dependencies
     const { app } = require('electron');
     return app.getPath('userData');
   }
 
   // 获取日志文件路径
   static getLogPath(): string {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require, no-restricted-syntax
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require, no-restricted-syntax, import/no-extraneous-dependencies
     const { app } = require('electron');
     const appDataPath = app.getPath('userData');
     return `${appDataPath}/logs`;
@@ -133,7 +133,7 @@ class Environment {
 
   // 获取缓存目录
   static getCachePath(): string {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require, no-restricted-syntax
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require, no-restricted-syntax, import/no-extraneous-dependencies
     const { app } = require('electron');
     return app.getPath('cache');
   }

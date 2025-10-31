@@ -173,12 +173,18 @@ module.exports = {
       },
     },
     {
-      files: ['src/main/**/*'],
+      files: ['src/main/**/*', 'src/preload/**/*'],
       env: {
         node: true,
       },
       rules: {
         'no-console': 'off',
+        'import/no-extraneous-dependencies': [
+          'error',
+          {
+            devDependencies: true,
+          },
+        ],
       },
     },
   ],
