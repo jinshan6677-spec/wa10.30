@@ -89,7 +89,7 @@ export class ErrorHandler {
 
     // 如果是自定义错误
     if ('code' in error) {
-      appError.code = (error).code;
+      appError.code = error.code;
     }
 
     // 记录错误日志
@@ -117,7 +117,9 @@ export class ErrorHandler {
 // 格式化工具
 export class Formatter {
   static formatFileSize(bytes: number): string {
-    if (bytes === 0) { return '0 Bytes'; }
+    if (bytes === 0) {
+      return '0 Bytes';
+    }
 
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -133,7 +135,8 @@ export class Formatter {
 
     if (hours > 0) {
       return `${hours}小时 ${minutes % 60}分钟`;
-    } if (minutes > 0) {
+    }
+    if (minutes > 0) {
       return `${minutes}分钟 ${seconds % 60}秒`;
     }
     return `${seconds}秒`;
@@ -144,7 +147,9 @@ export class Formatter {
   }
 
   static truncateText(text: string, maxLength: number): string {
-    if (text.length <= maxLength) { return text; }
+    if (text.length <= maxLength) {
+      return text;
+    }
     return `${text.substring(0, maxLength - 3)}...`;
   }
 }

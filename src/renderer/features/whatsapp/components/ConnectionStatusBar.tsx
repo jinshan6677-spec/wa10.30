@@ -63,9 +63,10 @@ export const ConnectionStatusBar: React.FC = () => {
           text: '连接中',
           color: '#FFA500',
           icon: '◐',
-          details: connectionState.reconnectAttempts > 0
-            ? `重连尝试 ${connectionState.reconnectAttempts}/5`
-            : '',
+          details:
+            connectionState.reconnectAttempts > 0
+              ? `重连尝试 ${connectionState.reconnectAttempts}/5`
+              : '',
         };
       case ConnectionStatus.QR_CODE_READY:
         return {
@@ -104,9 +105,7 @@ export const ConnectionStatusBar: React.FC = () => {
   return (
     <div style={styles.container}>
       <div style={styles.statusSection}>
-        <span style={{ ...styles.statusIcon, color: statusInfo.color }}>
-          {statusInfo.icon}
-        </span>
+        <span style={{ ...styles.statusIcon, color: statusInfo.color }}>{statusInfo.icon}</span>
         <span style={styles.statusText}>{statusInfo.text}</span>
       </div>
 

@@ -10,9 +10,7 @@ import {
 import { registerIPCHandlers, cleanupEvolutionAPI } from './ipc-handlers';
 
 // 根据 NODE_ENV 加载对应的 .env 文件
-const envFile = process.env.NODE_ENV === 'production'
-  ? '.env.production'
-  : '.env.development';
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
 dotenv.config({ path: path.resolve(__dirname, '../../', envFile) });
 
 console.log('[Environment] Loaded environment from:', envFile);
@@ -46,7 +44,7 @@ class Application {
         this.createMainWindow();
       }
       app.on('before-quit', () => {
-      // 清理 Evolution API 服务
+        // 清理 Evolution API 服务
         cleanupEvolutionAPI();
       });
     });
@@ -174,9 +172,7 @@ class Application {
     return [
       {
         label: '文件',
-        submenu: [
-          { role: 'quit', label: '退出' },
-        ],
+        submenu: [{ role: 'quit', label: '退出' }],
       },
       {
         label: '编辑',

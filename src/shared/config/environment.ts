@@ -35,13 +35,9 @@ class Environment {
   // eslint-disable-next-line class-methods-use-this
   private loadConfig(): IEnvironmentConfig {
     // 从环境变量读取配置
-    const nodeEnv = (
-      process.env.NODE_ENV as 'development' | 'production' | 'test'
-    ) ?? 'development';
+    const nodeEnv = (process.env.NODE_ENV as 'development' | 'production' | 'test') ?? 'development';
     const electronIsDev = process.env.ELECTRON_IS_DEV === 'true';
-    const logLevel = process.env.LOG_LEVEL ?? (
-      nodeEnv === 'development' ? 'debug' : 'warn'
-    );
+    const logLevel = process.env.LOG_LEVEL ?? (nodeEnv === 'development' ? 'debug' : 'warn');
     const devServerPort = parseInt(process.env.DEV_SERVER_PORT ?? '3000', 10);
     const devServerHost = process.env.DEV_SERVER_HOST ?? 'localhost';
     const hotReload = process.env.HOT_RELOAD === 'true';

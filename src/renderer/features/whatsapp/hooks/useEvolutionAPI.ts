@@ -27,12 +27,15 @@ export const useEvolutionAPI = (): UseEvolutionAPIReturn => {
   const isWebSocketConnectedRef = useRef(false);
 
   // 清理轮询定时器
-  useEffect(() => () => {
-    if (pollingTimerRef.current) {
-      clearInterval(pollingTimerRef.current);
-      pollingTimerRef.current = null;
-    }
-  }, []);
+  useEffect(
+    () => () => {
+      if (pollingTimerRef.current) {
+        clearInterval(pollingTimerRef.current);
+        pollingTimerRef.current = null;
+      }
+    },
+    [],
+  );
 
   const createInstance = useCallback(
     async (instanceName: string) => {

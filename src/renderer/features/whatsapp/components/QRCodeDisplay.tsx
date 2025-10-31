@@ -205,10 +205,7 @@ export const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
   // 自动倒计时显示(仅用于提示,不触发刷新)
   // Evolution API 会自动每40秒左右发送新的 QR 码,无需前端主动刷新
   useEffect(() => {
-    if (
-      connectionState.status === ConnectionStatus.QR_CODE_READY
-      && secondsRemaining > 0
-    ) {
+    if (connectionState.status === ConnectionStatus.QR_CODE_READY && secondsRemaining > 0) {
       const timer = setInterval(() => {
         setSecondsRemaining((prev) => {
           if (prev <= 1) {
@@ -245,12 +242,8 @@ export const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
         <div style={styles.successBox}>
           <div style={styles.successIcon}>✓</div>
           <h3 style={styles.successTitle}>已连接</h3>
-          <p style={styles.successText}>
-            WhatsApp 已成功连接
-          </p>
-          <p style={styles.instanceInfo}>
-            实例: {instanceName}
-          </p>
+          <p style={styles.successText}>WhatsApp 已成功连接</p>
+          <p style={styles.instanceInfo}>实例: {instanceName}</p>
         </div>
       </div>
     );
@@ -262,9 +255,7 @@ export const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
         <div style={styles.errorBox}>
           <div style={styles.errorIcon}>✗</div>
           <h3 style={styles.errorTitle}>连接失败</h3>
-          <p style={styles.errorText}>
-            {connectionState.error?.message ?? '未知错误'}
-          </p>
+          <p style={styles.errorText}>{connectionState.error?.message ?? '未知错误'}</p>
           <button onClick={handleManualRefresh} style={styles.retryButton}>
             重试
           </button>
@@ -306,17 +297,11 @@ export const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
         <h3 style={styles.title}>扫描二维码连接 WhatsApp</h3>
 
         <div style={styles.qrCodeContainer}>
-          <img
-            src={connectionState.qrCode}
-            alt="WhatsApp QR Code"
-            style={styles.qrCodeImage}
-          />
+          <img src={connectionState.qrCode} alt="WhatsApp QR Code" style={styles.qrCodeImage} />
         </div>
 
         <div style={styles.infoSection}>
-          <p style={styles.instructions}>
-            1. 打开 WhatsApp 应用
-          </p>
+          <p style={styles.instructions}>1. 打开 WhatsApp 应用</p>
           <p style={styles.instructions}>
             2. 点击 <strong>设置</strong> → <strong>已连接的设备</strong>
           </p>
@@ -330,13 +315,9 @@ export const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
             二维码将在约 <strong>{formatTime(secondsRemaining)}</strong> 后自动更新
           </p>
           {qrCodeGeneratedAt && (
-            <p style={styles.timestampText}>
-              生成时间: {qrCodeGeneratedAt.toLocaleTimeString()}
-            </p>
+            <p style={styles.timestampText}>生成时间: {qrCodeGeneratedAt.toLocaleTimeString()}</p>
           )}
-          <p style={styles.hintText}>
-            注: Evolution API 会自动发送新的二维码
-          </p>
+          <p style={styles.hintText}>注: Evolution API 会自动发送新的二维码</p>
         </div>
 
         <button onClick={handleManualRefresh} style={styles.refreshButton}>

@@ -56,7 +56,7 @@ describe('EvolutionAPIService', () => {
         config: { url: '/instance/create' },
       };
 
-      const { axiosInstance } = (service as any);
+      const { axiosInstance } = service as any;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const result = await service.createInstance({
@@ -83,7 +83,7 @@ describe('EvolutionAPIService', () => {
         message: 'Request failed',
       };
 
-      const { axiosInstance } = (service as any);
+      const { axiosInstance } = service as any;
       axiosInstance.post.mockRejectedValue(mockError);
 
       await expect(
@@ -105,7 +105,7 @@ describe('EvolutionAPIService', () => {
         config: { url: '/instance/connect/test_instance' },
       };
 
-      const { axiosInstance } = (service as any);
+      const { axiosInstance } = service as any;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await service.getQRCode('test_instance');
@@ -125,21 +125,19 @@ describe('EvolutionAPIService', () => {
         config: { url: '/instance/connectionState/test_instance' },
       };
 
-      const { axiosInstance } = (service as any);
+      const { axiosInstance } = service as any;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await service.getConnectionStatus('test_instance');
 
       expect(result).toEqual({ state: 'open' });
-      expect(axiosInstance.get).toHaveBeenCalledWith(
-        '/instance/connectionState/test_instance',
-      );
+      expect(axiosInstance.get).toHaveBeenCalledWith('/instance/connectionState/test_instance');
     });
   });
 
   describe('disconnect', () => {
     it('should disconnect with logout', async () => {
-      const { axiosInstance } = (service as any);
+      const { axiosInstance } = service as any;
       axiosInstance.delete.mockResolvedValue({ status: 200 });
 
       await service.disconnect('test_instance', { logout: true });
@@ -148,7 +146,7 @@ describe('EvolutionAPIService', () => {
     });
 
     it('should remove instance', async () => {
-      const { axiosInstance } = (service as any);
+      const { axiosInstance } = service as any;
       axiosInstance.delete.mockResolvedValue({ status: 200 });
 
       await service.disconnect('test_instance', {

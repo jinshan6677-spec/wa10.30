@@ -90,17 +90,14 @@ export class EvolutionAPIService {
    */
   async createInstance(request: CreateInstanceRequest): Promise<CreateInstanceResponse> {
     try {
-      const response = await this.axiosInstance.post<CreateInstanceResponse>(
-        '/instance/create',
-        {
-          instanceName: request.instanceName,
-          token: request.token,
-          qrcode: request.qrcode !== false, // 默认 true
-          number: request.number,
-          integration: request.integration,
-          webhook: request.webhookUrl,
-        },
-      );
+      const response = await this.axiosInstance.post<CreateInstanceResponse>('/instance/create', {
+        instanceName: request.instanceName,
+        token: request.token,
+        qrcode: request.qrcode !== false, // 默认 true
+        number: request.number,
+        integration: request.integration,
+        webhook: request.webhookUrl,
+      });
 
       return response.data;
     } catch (error) {
@@ -217,7 +214,9 @@ export class EvolutionAPIService {
    * 设置 WebSocket 事件处理器
    */
   private setupWebSocketHandlers(): void {
-    if (!this.socket) { return; }
+    if (!this.socket) {
+      return;
+    }
 
     this.socket.on('connect', () => {
       console.log('[Evolution API] WebSocket connected');

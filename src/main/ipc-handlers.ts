@@ -1,10 +1,7 @@
 import { ipcMain, BrowserWindow } from 'electron';
 
 import { environment } from '../shared/config/environment';
-import type {
-  CreateInstanceRequest,
-  DisconnectOptions,
-} from '../shared/types/evolution-api.types';
+import type { CreateInstanceRequest, DisconnectOptions } from '../shared/types/evolution-api.types';
 
 import { EvolutionAPIService } from './services/evolution-api.service';
 import { securityService } from './services/security.service';
@@ -19,7 +16,9 @@ let evolutionAPIService: EvolutionAPIService | null = null;
  */
 function setupWebSocketEventForwarding(service: EvolutionAPIService): void {
   const mainWindow = BrowserWindow.getAllWindows()[0];
-  if (!mainWindow) { return; }
+  if (!mainWindow) {
+    return;
+  }
 
   service.on('websocket:connected', () => {
     mainWindow.webContents.send('evolution-api:websocket-connected');

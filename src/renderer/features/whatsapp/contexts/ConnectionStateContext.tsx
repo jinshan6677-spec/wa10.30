@@ -4,9 +4,7 @@ import React, {
 } from 'react';
 
 import type { ConnectionState } from '../../../../shared/types/evolution-api.types';
-import {
-  ConnectionStatus,
-} from '../../../../shared/types/evolution-api.types';
+import { ConnectionStatus } from '../../../../shared/types/evolution-api.types';
 
 interface ConnectionStateContextValue {
   connectionState: ConnectionState;
@@ -104,7 +102,11 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
         const qrCode = eventData?.data?.qrcode?.base64 ?? eventData?.data?.qrcode?.pairingCode ?? null;
 
         if (qrCode) {
-          console.log('[ConnectionState] QR code extracted from WebSocket event (length:', qrCode.length, ')');
+          console.log(
+            '[ConnectionState] QR code extracted from WebSocket event (length:',
+            qrCode.length,
+            ')',
+          );
           setConnectionState((prev) => ({
             ...prev,
             qrCode,
@@ -113,7 +115,10 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
           }));
         } else {
           console.warn('[ConnectionState] QR code event has no base64 or pairingCode data');
-          console.log('[ConnectionState] Event data structure:', JSON.stringify(eventData, null, 2));
+          console.log(
+            '[ConnectionState] Event data structure:',
+            JSON.stringify(eventData, null, 2),
+          );
 
           // QR码数据缺失时设置错误状态
           setConnectionState((prev) => ({
@@ -227,9 +232,7 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
         setConnectionState((prev) => ({
           ...prev,
           instanceKey: parsedState.instanceKey,
-          lastConnected: parsedState.lastConnected
-            ? new Date(parsedState.lastConnected)
-            : null,
+          lastConnected: parsedState.lastConnected ? new Date(parsedState.lastConnected) : null,
         }));
       }
     } catch (error) {
@@ -248,9 +251,7 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
   };
 
   return (
-    <ConnectionStateContext.Provider value={value}>
-      {children}
-    </ConnectionStateContext.Provider>
+    <ConnectionStateContext.Provider value={value}>{children}</ConnectionStateContext.Provider>
   );
 };
 

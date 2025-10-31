@@ -5,7 +5,10 @@ import { ConnectionStatus } from '../shared/types/evolution-api.types';
 
 import { ConnectionStatusBar } from './features/whatsapp/components/ConnectionStatusBar';
 import { QRCodeDisplay } from './features/whatsapp/components/QRCodeDisplay';
-import { ConnectionStateProvider, useConnectionState } from './features/whatsapp/contexts/ConnectionStateContext';
+import {
+  ConnectionStateProvider,
+  useConnectionState,
+} from './features/whatsapp/contexts/ConnectionStateContext';
 import { useEvolutionAPI } from './features/whatsapp/hooks/useEvolutionAPI';
 
 interface AppInfo {
@@ -75,9 +78,14 @@ const WhatsAppConnection: React.FC = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <div style={{
-        marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap',
-      }}>
+      <div
+        style={{
+          marginBottom: '20px',
+          display: 'flex',
+          gap: '10px',
+          flexWrap: 'wrap',
+        }}
+      >
         <button
           onClick={handleConnect}
           disabled={isLoading || connectionState.status === ConnectionStatus.CONNECTED}
@@ -87,7 +95,10 @@ const WhatsAppConnection: React.FC = () => {
             color: 'white',
             border: 'none',
             borderRadius: '6px',
-            cursor: isLoading || connectionState.status === ConnectionStatus.CONNECTED ? 'not-allowed' : 'pointer',
+            cursor:
+              isLoading || connectionState.status === ConnectionStatus.CONNECTED
+                ? 'not-allowed'
+                : 'pointer',
             opacity: isLoading || connectionState.status === ConnectionStatus.CONNECTED ? 0.6 : 1,
           }}
         >
@@ -103,8 +114,12 @@ const WhatsAppConnection: React.FC = () => {
             color: 'white',
             border: 'none',
             borderRadius: '6px',
-            cursor: isLoading || connectionState.status === ConnectionStatus.DISCONNECTED ? 'not-allowed' : 'pointer',
-            opacity: isLoading || connectionState.status === ConnectionStatus.DISCONNECTED ? 0.6 : 1,
+            cursor:
+              isLoading || connectionState.status === ConnectionStatus.DISCONNECTED
+                ? 'not-allowed'
+                : 'pointer',
+            opacity:
+              isLoading || connectionState.status === ConnectionStatus.DISCONNECTED ? 0.6 : 1,
           }}
         >
           断开连接
@@ -189,12 +204,16 @@ const App: React.FC = () => {
             <div className="development-notice" style={{ marginTop: '40px' }}>
               <h3>Evolution API 集成完成</h3>
               <p>
-                ✅ Docker Compose 配置<br/>
-                ✅ API 服务类和 WebSocket 通信<br/>
-                ✅ 系统密钥链安全存储<br/>
-                ✅ 二维码显示和自动刷新<br/>
-                ✅ 连接状态管理<br/>
-                ✅ 自动重连机制
+                ✅ Docker Compose 配置
+                <br />
+                ✅ API 服务类和 WebSocket 通信
+                <br />
+                ✅ 系统密钥链安全存储
+                <br />
+                ✅ 二维码显示和自动刷新
+                <br />
+                ✅ 连接状态管理
+                <br />✅ 自动重连机制
               </p>
             </div>
           </div>
