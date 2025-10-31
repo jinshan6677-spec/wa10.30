@@ -100,6 +100,13 @@ module.exports = {
     'no-void': ['error', { allowAsStatement: true }],
     'max-classes-per-file': ['error', 10],
 
+    // 禁用 Airbnb 中过于严格的格式规则
+    'object-curly-newline': 'off',
+    'arrow-parens': 'off',
+    'operator-linebreak': 'off',
+    'implicit-arrow-linebreak': 'off',
+    'function-paren-newline': 'off',
+
     // Import规则
     'import/prefer-default-export': 'off',
     'import/no-default-export': 'error',
