@@ -9,7 +9,6 @@ import type {
   CreateInstanceResponse,
   GetQRCodeResponse,
   ConnectionUpdateEvent,
-  WebSocketEventData,
   EvolutionAPIError,
   ReconnectConfig,
   ConnectOptions,
@@ -29,9 +28,9 @@ export class EvolutionAPIService {
 
   private reconnectConfig: ReconnectConfig = {
     maxAttempts: 5,
-    baseDelay: 1000,
-    maxDelay: 30000,
-    timeout: 30000,
+    baseDelay: 500,   // 减少到500ms（原1000ms）- 加快重连速度
+    maxDelay: 5000,   // 减少到5秒（原30秒）- 避免长时间等待
+    timeout: 15000,   // 减少到15秒（原30秒）- 加快超时反馈
   };
 
   private reconnectAttempts = 0;
@@ -59,24 +58,18 @@ export class EvolutionAPIService {
       },
     });
 
-    // 添加请求拦截器
+    // 添加请求拦截器（静默模式，仅记录错误）
     this.axiosInstance.interceptors.request.use(
-      axiosConfig => {
-        console.log('[Evolution API] Request:', axiosConfig.method?.toUpperCase(), axiosConfig.url);
-        return axiosConfig;
-      },
+      axiosConfig => axiosConfig,
       error => {
         console.error('[Evolution API] Request error:', error);
         return Promise.reject(error);
       },
     );
 
-    // 添加响应拦截器
+    // 添加响应拦截器（静默模式，仅记录错误）
     this.axiosInstance.interceptors.response.use(
-      response => {
-        console.log('[Evolution API] Response:', response.status, response.config.url);
-        return response;
-      },
+      response => response,
       (error: AxiosError) => {
         const evolutionError = this.handleAPIError(error);
         console.error('[Evolution API] Response error:', evolutionError);
@@ -97,6 +90,10 @@ export class EvolutionAPIService {
         number: request.number,
         integration: request.integration,
         webhook: request.webhookUrl,
+        // 性能优化参数
+        reject_call: request.reject_call,
+        websocket_enabled: request.websocket_enabled,
+        websocket_events: request.websocket_events,
       });
 
       return response.data;
@@ -218,27 +215,38 @@ export class EvolutionAPIService {
       return;
     }
 
+    // Socket.IO event listeners (removed onAny for performance)
+
     this.socket.on('connect', () => {
-      console.log('[Evolution API] WebSocket connected');
+      console.log('[Evolution API] ✅ WebSocket connected successfully!');
+      console.log('[Evolution API] Socket ID:', this.socket?.id);
+      console.log('[Evolution API] Listening for instance:', this.currentInstanceName);
       this.reconnectAttempts = 0;
       this.emit('websocket:connected');
     });
 
     this.socket.on('disconnect', reason => {
-      console.log('[Evolution API] WebSocket disconnected:', reason);
+      console.log('[Evolution API] ❌ WebSocket disconnected:', reason);
       this.emit('websocket:disconnected', { reason });
     });
 
     this.socket.on('connect_error', error => {
-      console.error('[Evolution API] WebSocket connect error:', error);
+      console.error('[Evolution API] ❌ WebSocket connect error:', error);
+      console.error('[Evolution API] Error details:', {
+        message: error.message,
+        error,
+      });
       this.handleReconnect();
       this.emit('websocket:error', { error });
+    });
+
+    this.socket.on('error', (error: any) => {
+      console.error('[Evolution API] ❌ Socket error:', error);
     });
 
     this.socket.on('connection.update', (data: ConnectionUpdateEvent) => {
       // 全局模式：过滤只处理当前实例的事件
       if (data.instance === this.currentInstanceName) {
-        console.log('[Evolution API] Connection update for instance:', data.instance);
         this.emit('connection:update', data);
       }
     });
@@ -247,22 +255,46 @@ export class EvolutionAPIService {
       // 全局模式：过滤只处理当前实例的事件
       const qrData = data as { instance: string };
       if (qrData.instance === this.currentInstanceName) {
-        console.log('[Evolution API] QR code updated for instance:', qrData.instance);
-        console.log('[Evolution API] QR code RAW event structure:', JSON.stringify(data, null, 2));
+        console.log('[Evolution API] QR code updated');
         this.emit('qrcode:updated', data);
       }
     });
 
-    this.socket.on('messages.upsert', (data: WebSocketEventData) => {
+    this.socket.on('messages.upsert', (rawData: any) => {
+      // Evolution API sends the event data directly, not wrapped in WebSocketEventData
+      const { instance } = rawData;
+      console.log('[Evolution API] 🔔 WebSocket messages.upsert:', instance, 'current:', this.currentInstanceName);
+
       // 全局模式：过滤只处理当前实例的事件
-      if (data.instance === this.currentInstanceName) {
-        this.emit('message:received', data);
+      if (instance === this.currentInstanceName) {
+        console.log('[Evolution API] ✅ Emitting messages.upsert to MessageService');
+        this.emit('messages.upsert', rawData);
+      } else {
+        console.log('[Evolution API] ⏭️ Skipping - wrong instance');
+      }
+    });
+
+    this.socket.on('messages.update', (rawData: any) => {
+      const { instance } = rawData;
+
+      // 全局模式：过滤只处理当前实例的事件
+      if (instance === this.currentInstanceName) {
+        this.emit('messages.update', rawData);
+      }
+    });
+
+    this.socket.on('chats.upsert', (rawData: any) => {
+      const { instance } = rawData;
+
+      // 全局模式：过滤只处理当前实例的事件
+      if (instance === this.currentInstanceName) {
+        this.emit('chats.upsert', rawData);
       }
     });
   }
 
   /**
-   * 处理重连逻辑
+   * 🔥 增强：处理重连逻辑 - 验证Evolution API实例状态
    */
   private handleReconnect(): void {
     if (this.reconnectAttempts >= this.reconnectConfig.maxAttempts) {
@@ -289,9 +321,36 @@ export class EvolutionAPIService {
     }
 
     this.reconnectTimer = setTimeout(() => {
-      if (this.socket && !this.socket.connected) {
-        this.socket.connect();
-      }
+      // 🔥 新增：重连前验证实例状态
+      void (async () => {
+        if (this.currentInstanceName) {
+          try {
+            const status = await this.getConnectionStatus(this.currentInstanceName);
+            if (status.state !== 'open') {
+              console.warn(
+                `[Evolution API] Instance ${this.currentInstanceName} is not open ` +
+                  `(${status.state}), aborting reconnect`,
+              );
+              this.emit('reconnect:failed');
+              return;
+            }
+          } catch (error) {
+            console.error(
+              '[Evolution API] Failed to verify instance status during reconnect:',
+              error,
+            );
+            // 实例不存在或API调用失败，停止重连
+            this.emit('reconnect:failed');
+            return;
+          }
+        }
+
+        // 验证通过，继续重连WebSocket
+        if (this.socket && !this.socket.connected) {
+          console.log('[Evolution API] Instance verified, reconnecting WebSocket...');
+          this.socket.connect();
+        }
+      })();
     }, delay);
   }
 
@@ -340,6 +399,7 @@ export class EvolutionAPIService {
    */
   private emit(event: string, data?: unknown): void {
     const handlers = this.eventHandlers.get(event);
+    console.log(`[Evolution API] 📡 Emit ${event}, handlers count:`, handlers?.size ?? 0);
     if (handlers) {
       handlers.forEach(handler => {
         try {
@@ -348,6 +408,8 @@ export class EvolutionAPIService {
           console.error(`[Evolution API] Error in event handler for ${event}:`, error);
         }
       });
+    } else {
+      console.log(`[Evolution API] ⚠️ No handlers registered for event: ${event}`);
     }
   }
 
@@ -377,6 +439,79 @@ export class EvolutionAPIService {
     }
 
     return evolutionError;
+  }
+
+  /**
+   * 🔥 修复：获取聊天列表 - Evolution API v2使用POST /chat/findChats
+   */
+  async getChats(instanceName: string): Promise<unknown> {
+    try {
+      // Evolution API v2.3.6使用POST /chat/findChats获取带消息的聊天列表
+      const response = await this.axiosInstance.post(`/chat/findChats/${instanceName}`, {});
+      return response.data;
+    } catch (error) {
+      const evolutionError = this.handleAPIError(error as AxiosError);
+      throw new Error(evolutionError.message);
+    }
+  }
+
+  /**
+   * 🔥 新增：获取联系人信息（修复 chat.service.ts 的 `as any` 黑魔法）
+   */
+  async getContactInfo(instanceName: string, whatsappId: string): Promise<unknown> {
+    try {
+      const response = await this.axiosInstance.get(`/chat/findContact/${instanceName}`, {
+        params: { id: whatsappId },
+      });
+      return response.data;
+    } catch (error) {
+      const evolutionError = this.handleAPIError(error as AxiosError);
+      throw new Error(evolutionError.message);
+    }
+  }
+
+  /**
+   * 🔥 新增：更新聊天置顶状态（实现 chat.service.ts 的 TODO）
+   */
+  async updateChatPinned(
+    instanceName: string,
+    whatsappId: string,
+    isPinned: boolean,
+  ): Promise<void> {
+    try {
+      // Evolution API: POST /chat/updateChatSettings/:instanceName
+      await this.axiosInstance.post(`/chat/updateChatSettings/${instanceName}`, {
+        id: whatsappId,
+        isPinned,
+      });
+    } catch (error) {
+      const evolutionError = this.handleAPIError(error as AxiosError);
+      console.error('[Evolution API] Failed to update chat pinned status:', evolutionError);
+      // 不抛出错误，因为本地数据库已经更新
+      // throw new Error(evolutionError.message);
+    }
+  }
+
+  /**
+   * 🔥 新增：更新聊天归档状态（实现 chat.service.ts 的 TODO）
+   */
+  async updateChatArchived(
+    instanceName: string,
+    whatsappId: string,
+    isArchived: boolean,
+  ): Promise<void> {
+    try {
+      // Evolution API: POST /chat/archiveChat/:instanceName
+      const endpoint = isArchived ? '/chat/archiveChat' : '/chat/unarchiveChat';
+      await this.axiosInstance.post(`${endpoint}/${instanceName}`, {
+        id: whatsappId,
+      });
+    } catch (error) {
+      const evolutionError = this.handleAPIError(error as AxiosError);
+      console.error('[Evolution API] Failed to update chat archived status:', evolutionError);
+      // 不抛出错误，因为本地数据库已经更新
+      // throw new Error(evolutionError.message);
+    }
   }
 
   /**

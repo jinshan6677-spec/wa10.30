@@ -1,0 +1,7 @@
+/* SearchBar组件样式 */
+
+.search-bar-container {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border-primary);
+}

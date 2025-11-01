@@ -1,0 +1,22 @@
+/* Icon组件样式 */
+
+.icon {
+  display: inline-block;
+  color: currentColor;
+  flex-shrink: 0;
+}
+
+.icon-sm {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-md {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-lg {
+  width: 32px;
+  height: 32px;
+}

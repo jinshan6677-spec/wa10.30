@@ -16,6 +16,12 @@ const validChannels = [
   'evolution-api:websocket-error',
   'evolution-api:reconnect-attempt',
   'evolution-api:reconnect-failed',
+  // Chat 事件
+  'chat:list-updated',
+  'chat:updated',
+  // Message 事件
+  'message:new',
+  'message:status-update',
 ];
 
 // 暴露安全的API到渲染进程
@@ -48,6 +54,32 @@ const electronAPI: ElectronAPI = {
     connectWebSocket: (instanceName: string) =>
       ipcRenderer.invoke('evolution-api:connectWebSocket', instanceName),
     disconnectWebSocket: () => ipcRenderer.invoke('evolution-api:disconnectWebSocket'),
+  },
+
+  // Chat API - 聊天列表和联系人管理
+  chatAPI: {
+    syncChats: (instanceName: string) => ipcRenderer.invoke('chat:sync', instanceName),
+    getChats: (request?: any) => ipcRenderer.invoke('chat:get-list', request),
+    getContactInfo: (whatsappId: string) =>
+      ipcRenderer.invoke('chat:get-contact-info', whatsappId),
+    searchChats: (query: string, limit?: number) =>
+      ipcRenderer.invoke('chat:search', query, limit),
+    updateChat: (request: any) => ipcRenderer.invoke('chat:update', request),
+  },
+
+  // Message API - 消息收发和管理
+  messageAPI: {
+    getMessages: (request: any) => ipcRenderer.invoke('message:get-list', request),
+    subscribe: (chatId: string) => ipcRenderer.invoke('message:subscribe', chatId),
+    unsubscribe: (chatId: string) => ipcRenderer.invoke('message:unsubscribe', chatId),
+    markAsRead: (request: any) => ipcRenderer.invoke('message:mark-read', request),
+    updateStatus: (request: any) => ipcRenderer.invoke('message:update-status', request),
+    setInstance: (instanceName: string) =>
+      ipcRenderer.invoke('message:set-instance', instanceName),
+    sendMessage: (params: any) => ipcRenderer.invoke('message:send', params),
+    sendTypingStatus: (params: any) => ipcRenderer.invoke('message:send-typing-status', params),
+    // 🔥 测试端点
+    simulateMessage: (chatId: string) => ipcRenderer.invoke('test:simulate-message', chatId),
   },
 
   // 事件监听

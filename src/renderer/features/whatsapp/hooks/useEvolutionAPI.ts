@@ -49,11 +49,8 @@ export const useEvolutionAPI = (): UseEvolutionAPIReturn => {
         const result = await window.electronAPI.evolutionAPI.createInstance(instanceName);
 
         if (result.success) {
-          console.log('[useEvolutionAPI] Instance created:', result.data);
-
           // 检查是否已经连接（跳过QR流程）
-          if ((result.data as any).alreadyConnected) {
-            console.log('[useEvolutionAPI] ⚡ Instance already connected! Skipping QR code flow');
+          if ((result.data).alreadyConnected) {
             updateStatus(ConnectionStatus.CONNECTED);
             return true; // 返回true表示已连接
           }
@@ -67,9 +64,9 @@ export const useEvolutionAPI = (): UseEvolutionAPIReturn => {
           }
 
           return false; // 返回false表示需要继续QR流程
-        } else {
-          throw new Error(result.error || 'Failed to create instance');
         }
+        throw new Error(result.error ?? 'Failed to create instance');
+
       } catch (err) {
         const errorObj = err as Error;
         console.error('[useEvolutionAPI] Create instance error:', errorObj);
@@ -108,13 +105,11 @@ export const useEvolutionAPI = (): UseEvolutionAPIReturn => {
         const result = await window.electronAPI.evolutionAPI.getQRCode(instanceName);
 
         if (result.success) {
-          console.log('[useEvolutionAPI] QR code endpoint called, data:', result.data);
-
           // Evolution API v2.3.6: REST API 返回 pairingCode/code, 不返回 base64
           // base64 会通过 WebSocket qrcode.updated 事件异步发送
           // 这里只触发连接,实际 QR 码会由 WebSocket 事件处理
 
-          const qrCode = result.data.base64 || result.data.pairingCode || null;
+          const qrCode = result.data.base64 ?? result.data.pairingCode ?? null;
 
           if (qrCode) {
             // 如果有 base64 或 pairingCode,更新状态
@@ -122,11 +117,10 @@ export const useEvolutionAPI = (): UseEvolutionAPIReturn => {
             updateStatus(ConnectionStatus.QR_CODE_READY);
           } else {
             // 如果没有二维码数据,设置为等待 WebSocket 事件
-            console.log('[useEvolutionAPI] Waiting for WebSocket qrcode.updated event...');
             updateStatus(ConnectionStatus.CONNECTING);
           }
         } else {
-          throw new Error(result.error || 'Failed to get QR code');
+          throw new Error(result.error ?? 'Failed to get QR code');
         }
       } catch (err) {
         const errorObj = err as Error;
@@ -154,8 +148,6 @@ export const useEvolutionAPI = (): UseEvolutionAPIReturn => {
       setError(null);
 
       try {
-        console.log('[useEvolutionAPI] Refreshing QR code...');
-
         // 步骤1: 清除当前 QR 码,显示加载状态
         updateQRCode(null);
         updateStatus(ConnectionStatus.CONNECTING);
@@ -166,7 +158,6 @@ export const useEvolutionAPI = (): UseEvolutionAPIReturn => {
 
         // 步骤3: 新的 base64 QR 码会通过 WebSocket qrcode.updated 事件发送
         // 由 ConnectionStateContext 的 handleQRCodeUpdated 处理
-        console.log('[useEvolutionAPI] QR refresh initiated, waiting for WebSocket event...');
       } catch (err) {
         const errorObj = err as Error;
         console.error('[useEvolutionAPI] Refresh QR error:', errorObj);
@@ -191,10 +182,8 @@ export const useEvolutionAPI = (): UseEvolutionAPIReturn => {
           removeInstance: false,
         });
 
-        console.log('[useEvolutionAPI] 🔓 Disconnected successfully');
         // 🔥 修复：使用 resetSession 重置所有会话状态（包括 sessionValid）
         resetSession();
-        console.log('[useEvolutionAPI] ✅ Session reset complete, should redirect to /setup');
       } catch (err) {
         const errorObj = err as Error;
         console.error('[useEvolutionAPI] Disconnect error:', errorObj);
@@ -214,8 +203,6 @@ export const useEvolutionAPI = (): UseEvolutionAPIReturn => {
 
       try {
         await window.electronAPI.evolutionAPI.connectWebSocket(instanceName);
-
-        console.log('[useEvolutionAPI] WebSocket connecting...');
         updateStatus(ConnectionStatus.CONNECTING);
       } catch (err) {
         const errorObj = err as Error;
@@ -236,8 +223,6 @@ export const useEvolutionAPI = (): UseEvolutionAPIReturn => {
 
     try {
       await window.electronAPI.evolutionAPI.disconnectWebSocket();
-
-      console.log('[useEvolutionAPI] WebSocket disconnected');
       updateStatus(ConnectionStatus.DISCONNECTED);
       isWebSocketConnectedRef.current = false;
     } catch (err) {
@@ -259,34 +244,22 @@ export const useEvolutionAPI = (): UseEvolutionAPIReturn => {
    */
   const connectWithHybridStrategy = useCallback(
     async (instanceName: string) => {
-      const startTime = Date.now();
-      console.log('[useEvolutionAPI] 🚀 Starting connection for:', instanceName);
-
       try {
         // 清理之前可能存在的轮询
         if (pollingTimerRef.current) {
           clearInterval(pollingTimerRef.current);
           pollingTimerRef.current = null;
-          console.log('[useEvolutionAPI] Cleared existing polling timer');
         }
 
         // 步骤1: 创建/检查实例
-        console.log('[useEvolutionAPI] 📝 Step 1: Checking instance status...');
-        const step1Start = Date.now();
         const alreadyConnected = await createInstanceInternal(instanceName);
-        console.log(`[useEvolutionAPI] ✅ Step 1 completed in ${Date.now() - step1Start}ms`);
 
         // 如果实例已连接，跳过后续步骤
         if (alreadyConnected) {
-          const totalTime = Date.now() - startTime;
-          console.log(`[useEvolutionAPI] ⚡ Instance already connected! Completed in ${totalTime}ms`);
-          console.log('[useEvolutionAPI] 🎉 No QR code needed - You are already logged in!');
-
           // 仍然需要连接WebSocket以接收新消息
           try {
             await connectWebSocket(instanceName);
             isWebSocketConnectedRef.current = true;
-            console.log('[useEvolutionAPI] ✅ WebSocket connected for message updates');
           } catch (wsErr) {
             console.warn('[useEvolutionAPI] WebSocket connection failed, but instance is connected:', wsErr);
           }
@@ -295,31 +268,17 @@ export const useEvolutionAPI = (): UseEvolutionAPIReturn => {
         }
 
         // 步骤2: 连接 WebSocket 以接收实时事件
-        console.log('[useEvolutionAPI] 🔌 Step 2/3: Connecting to WebSocket...');
-        const step2Start = Date.now();
         await connectWebSocket(instanceName);
         isWebSocketConnectedRef.current = true;
-        console.log(`[useEvolutionAPI] ✅ Step 2 completed in ${Date.now() - step2Start}ms - WebSocket connected`);
 
         // 步骤3: 主动获取一次 QR 码
         // 注意: 移除了之前的 2 秒等待，因为会减慢连接速度
         // WebSocket 连接通常在 200-500ms 内完成，不需要额外延迟
         // 这会触发 Evolution API 通过 WebSocket 发送 qrcode.updated 事件
-        console.log('[useEvolutionAPI] 📱 Step 3/3: Fetching initial QR code...');
-        const step3Start = Date.now();
         await getQRCode(instanceName);
-        console.log(`[useEvolutionAPI] ✅ Step 3 completed in ${Date.now() - step3Start}ms - QR request sent`);
-
-        // 步骤4: 后续的 QR 码更新将通过 WebSocket 自动接收
-        const totalTime = Date.now() - startTime;
-        console.log(`[useEvolutionAPI] 🎉 Connection initialization completed in ${totalTime}ms - Now listening for:`);
-        console.log('[useEvolutionAPI]   - qrcode.updated (QR code refresh)');
-        console.log('[useEvolutionAPI]   - connection.update (WhatsApp connection status)');
-        console.log('[useEvolutionAPI] 👉 Please scan the QR code with your phone');
       } catch (err) {
         const errorObj = err as Error;
-        const totalTime = Date.now() - startTime;
-        console.error(`[useEvolutionAPI] ❌ Connection failed after ${totalTime}ms:`, errorObj);
+        console.error('[useEvolutionAPI] ❌ Connection failed:', errorObj);
         setError(errorObj);
         updateError(errorObj);
         updateStatus(ConnectionStatus.ERROR);

@@ -1,0 +1,114 @@
+/* Button组件样式 */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  position: relative;
+}
+
+/* 尺寸变体 */
+.btn-sm {
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: var(--font-size-sm);
+}
+
+.btn-md {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-base);
+}
+
+.btn-lg {
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: var(--font-size-lg);
+}
+
+/* 颜色变体 */
+.btn-primary {
+  background-color: var(--wa-green);
+  color: var(--text-inverse);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--wa-green-dark);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--bg-tertiary);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-icon {
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-secondary);
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.btn-icon:hover:not(:disabled) {
+  background-color: var(--bg-hover);
+}
+
+.btn-icon:active:not(:disabled) {
+  background-color: var(--bg-active);
+}
+
+/* 状态 */
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* 全宽 */
+.btn-full-width {
+  width: 100%;
+}
+
+/* 加载状态 */
+.btn-loading .btn-content {
+  opacity: 0.6;
+}
+
+.btn-spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 悬停效果 */
+.btn:not(:disabled):hover {
+  box-shadow: var(--shadow-sm);
+}

@@ -1,0 +1,367 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>3</storyId>
+    <title>基础UI框架和布局结构</title>
+    <status>drafted</status>
+    <generatedAt>2025-10-31</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>E:\WhatsApp s\wa10.30\docs\stories\1-3-basic-ui-framework.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>UI/UX设计师</asA>
+    <iWant>搭建与WhatsApp Web完全一致的界面布局框架</iWant>
+    <soThat>用户获得零学习成本的体验</soThat>
+    <tasks>
+### Task 1: 搭建React应用基础结构 (AC: 1, 2)
+- [ ] 配置React 18.3.1 + TypeScript项目结构
+  - [ ] 设置webpack配置for renderer process
+  - [ ] 配置hot reload和开发服务器
+  - [ ] 建立src/renderer目录结构 (components/, features/, shared/, styles/)
+- [ ] 创建主应用组件架构
+  - [ ] 实现App.tsx作为根组件
+  - [ ] 设置React Router v6路由结构
+  - [ ] 建立Context API状态管理基础
+- [ ] 建立响应式布局容器
+  - [ ] 实现CSS Grid主布局 (sidebar + main content)
+  - [ ] 添加窗口resize事件监听器
+  - [ ] 设置布局断点和自适应逻辑
+
+### Task 2: 实现主窗口三栏布局 (AC: 1)
+- [ ] 创建左侧聊天列表区域组件
+  - [ ] ChatList.tsx - 聊天列表容器组件
+  - [ ] 固定宽度340px，overflow-y: auto
+  - [ ] 实现虚拟滚动优化（react-window）
+- [ ] 创建右侧对话窗口区域组件
+  - [ ] ConversationWindow.tsx - 对话窗口容器
+  - [ ] 实现弹性布局，自动填充剩余空间
+  - [ ] 添加消息显示区域和输入区域分隔
+- [ ] 实现顶部搜索栏组件
+  - [ ] SearchBar.tsx - 全局搜索组件
+  - [ ] 添加搜索图标、输入框、过滤选项
+  - [ ] 集成debounce优化搜索性能
+
+### Task 3: 建立原子化组件库 (AC: 3)
+- [ ] 创建Atoms层基础组件
+  - [ ] Button.tsx - 按钮组件（primary, secondary, icon variants）
+  - [ ] Input.tsx - 输入框组件（text, search, textarea variants）
+  - [ ] Avatar.tsx - 头像组件（支持图片、文字初始化、在线状态）
+  - [ ] Icon.tsx - 图标组件（SVG图标封装）
+  - [ ] Typography.tsx - 文字组件（标题、正文、caption）
+- [ ] 创建Molecules层复合组件
+  - [ ] MessageBubble.tsx - 消息气泡组件
+  - [ ] ContactItem.tsx - 联系人列表项组件
+  - [ ] ChatHeader.tsx - 聊天头部组件
+  - [ ] InputArea.tsx - 消息输入区域组件
+- [ ] 为每个组件编写单元测试
+  - [ ] 使用@testing-library/react测试组件渲染
+  - [ ] 测试用户交互和事件处理
+  - [ ] 验证组件props和variants
+
+### Task 4: 实现主题系统 (AC: 4)
+- [ ] 设置CSS变量主题系统
+  - [ ] 创建themes.css定义亮色和暗色主题变量
+  - [ ] WhatsApp绿色主题：--whatsapp-green: #25D366
+  - [ ] 背景色、文字色、边框色等完整色彩系统
+- [ ] 实现主题Context和切换逻辑
+  - [ ] ThemeContext.tsx - 主题状态管理
+  - [ ] useTheme() hook提供主题切换功能
+  - [ ] 主题偏好持久化到localStorage
+- [ ] 添加主题切换UI控制
+  - [ ] 在设置面板添加主题切换开关
+  - [ ] 支持auto（跟随系统）、light、dark三种模式
+  - [ ] 实现平滑的主题过渡动画
+
+### Task 5: 视觉一致性验证和优化 (AC: 5)
+- [ ] 对比WhatsApp Web进行像素级验证
+  - [ ] 使用截图对比工具验证布局差异
+  - [ ] 测量字体大小、间距、圆角等视觉参数
+  - [ ] 确保色彩、阴影、动画效果一致
+- [ ] 优化视觉细节
+  - [ ] 调整组件间距和padding使其与WhatsApp Web一致
+  - [ ] 匹配字体系统（system-ui, -apple-system, BlinkMacSystemFont）
+  - [ ] 实现hover、active状态的视觉反馈
+- [ ] 进行跨平台视觉测试
+  - [ ] 在Windows、macOS、Linux上测试视觉表现
+  - [ ] 验证不同DPI下的渲染质量
+  - [ ] 确保暗色/亮色主题在所有平台表现一致
+</tasks>
+  </story>
+
+  <acceptanceCriteria>
+1. 实现主窗口布局：左侧聊天列表、右侧对话窗口、顶部搜索栏
+2. 建立响应式布局系统，支持窗口大小调整
+3. 创建基础组件库：按钮、输入框、消息气泡、头像等
+4. 实现暗黑/明亮主题切换功能
+5. 确保界面元素与WhatsApp Web视觉差异<5%
+</acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>WhatsApp语言增强层 - UX设计规范</title>
+        <section>设计系统决策</section>
+        <snippet>采用Chakra UI + 自定义组件，React 18.3.1 + Electron 33.0.0技术栈。原子化设计模式（Atoms/Molecules/Organisms）支持深度定制以匹配WhatsApp视觉风格。</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>WhatsApp语言增强层 - UX设计规范</title>
+        <section>视觉设计系统 - 颜色策略</section>
+        <snippet>WhatsApp品牌色：--wa-green: #25D366, --wa-green-dark: #128C7E, --wa-sidebar: #111B21。排版系统使用系统字体，消息文字15px/1.4行高，基础间距单位4px。</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>WhatsApp语言增强层 - UX设计规范</title>
+        <section>核心组件规范</section>
+        <snippet>消息组件圆角7.5px，最大宽度75%，内边距6px 9px 6px 7px。完整的Atoms/Molecules/Organisms组件层次定义，包含Button、Input、Avatar等基础组件规范。</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>决策架构文档</title>
+        <section>项目结构</section>
+        <snippet>Electron多进程架构：src/main/主进程、src/renderer/渲染进程（React应用）、src/preload/安全桥接。原子化组件库位于components/atoms/、molecules/、organisms/。</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>决策架构文档</title>
+        <section>UI框架和状态管理决策</section>
+        <snippet>React 18 + TypeScript，原子化设计模式，Context API状态管理。满足WhatsApp UI一致性要求，视觉差异<5%目标，支持并发特性和细粒度状态控制。</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>功能需求 - WhatsApp核心功能克隆类</section>
+        <snippet>FR001-FR008：完整聊天界面布局（聊天列表、对话窗口、输入框），消息收发，语音消息，消息状态，联系人管理，单账号登录和会话管理，实时同步，媒体文件管理。</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>非功能需求 - NFR005用户体验质量</section>
+        <snippet>零学习成本：新用户首次使用成功率>95%。界面一致性：与WhatsApp Web视觉差异<5%，交互逻辑完全一致。UI响应时间<200ms，消息加载<500ms。</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/renderer/App.tsx</path>
+        <kind>component</kind>
+        <symbol>App</symbol>
+        <lines>132-224</lines>
+        <reason>现有主应用组件，包含自定义标题栏和基础布局结构。本故事需在此基础上扩展完整UI框架。</reason>
+      </artifact>
+      <artifact>
+        <path>src/renderer/features/whatsapp/components/ConnectionStatusBar.tsx</path>
+        <kind>component</kind>
+        <symbol>ConnectionStatusBar</symbol>
+        <lines>全文件</lines>
+        <reason>现有WhatsApp功能组件，展示连接状态。可作为organisms层组件参考。</reason>
+      </artifact>
+      <artifact>
+        <path>src/renderer/features/whatsapp/components/QRCodeDisplay.tsx</path>
+        <kind>component</kind>
+        <symbol>QRCodeDisplay</symbol>
+        <lines>全文件</lines>
+        <reason>现有二维码显示组件，可作为molecules层组件参考。</reason>
+      </artifact>
+      <artifact>
+        <path>src/renderer/features/whatsapp/contexts/ConnectionStateContext.tsx</path>
+        <kind>context</kind>
+        <symbol>ConnectionStateContext</symbol>
+        <lines>全文件</lines>
+        <reason>现有Context API实现，展示状态管理模式。本故事将创建ThemeContext等类似结构。</reason>
+      </artifact>
+      <artifact>
+        <path>src/renderer/features/whatsapp/hooks/useEvolutionAPI.ts</path>
+        <kind>hook</kind>
+        <symbol>useEvolutionAPI</symbol>
+        <lines>全文件</lines>
+        <reason>现有自定义Hook，展示Hook开发模式。本故事将创建useTheme、useResponsive等类似Hook。</reason>
+      </artifact>
+      <artifact>
+        <path>src/preload/preload.ts</path>
+        <kind>preload</kind>
+        <symbol>electronAPI</symbol>
+        <lines>22-73</lines>
+        <reason>Electron预加载脚本，通过contextBridge安全暴露API。UI组件将通过window.electronAPI调用主进程功能。</reason>
+      </artifact>
+      <artifact>
+        <path>public/index.html</path>
+        <kind>html</kind>
+        <symbol>index.html</symbol>
+        <lines>1-83</lines>
+        <reason>应用HTML入口，包含CSP安全策略和加载动画。需保持现有结构，添加全局样式和主题变量。</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <runtime>
+        <package name="react" version="^18.3.1" />
+        <package name="react-dom" version="^18.3.1" />
+        <package name="axios" version="^1.7.7" />
+        <package name="socket.io-client" version="^4.8.1" />
+      </runtime>
+      <development>
+        <package name="electron" version="^33.0.0" />
+        <package name="typescript" version="^5.5.4" />
+        <package name="@types/react" version="^18.3.12" />
+        <package name="@types/react-dom" version="^18.3.1" />
+        <package name="@testing-library/react" version="^16.0.1" />
+        <package name="@testing-library/jest-dom" version="^6.6.3" />
+        <package name="@testing-library/user-event" version="^14.5.2" />
+        <package name="jest" version="^29.7.0" />
+        <package name="webpack" version="^5.95.0" />
+        <package name="webpack-dev-server" version="^5.1.0" />
+        <package name="css-loader" version="^7.1.2" />
+        <package name="style-loader" version="^4.0.0" />
+        <package name="eslint" version="^8.57.0" />
+        <package name="eslint-plugin-react" version="^7.37.2" />
+        <package name="eslint-plugin-react-hooks" version="^5.0.0" />
+        <package name="eslint-plugin-jsx-a11y" version="^6.10.2" />
+      </development>
+      <to_install>
+        <package name="react-router-dom" version="^6.28.0" reason="AC1: 设置React Router v6路由结构" />
+        <package name="react-window" version="^1.8.10" reason="AC1: 实现虚拟滚动优化聊天列表" />
+      </to_install>
+      <frameworks>
+        <framework name="Electron" version="33.0.0" purpose="桌面应用框架，多进程架构" />
+        <framework name="React" version="18.3.1" purpose="UI框架，支持并发特性" />
+        <framework name="TypeScript" version="5.5.4" purpose="类型安全，减少运行时错误" />
+        <framework name="Webpack" version="5.95.0" purpose="构建工具，支持热重载" />
+        <framework name="Jest" version="29.7.0" purpose="测试框架，配合React Testing Library" />
+      </frameworks>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+- 必须遵循原子化设计模式（Atoms/Molecules/Organisms三层架构）
+- 必须使用React 18.3.1 + TypeScript 5.6.3，不得使用JavaScript
+- 状态管理必须使用Context API，不得引入Redux或其他状态管理库
+- 样式使用CSS3 + CSS Variables，禁止使用CSS-in-JS（styled-components等）
+- 所有组件必须编写单元测试，测试覆盖率目标80%+
+- 必须保持与WhatsApp Web视觉差异<5%，严格遵循UX设计规范中的颜色、排版、间距系统
+- 必须支持响应式布局，断点：768px（tablet）、1024px（desktop）
+- 所有交互元素必须符合WCAG 2.1 AA标准，包含aria-label和键盘导航支持
+- 组件文件结构：每个组件独立文件夹，包含.tsx、.test.tsx、index.ts
+- 必须使用项目现有的目录结构：src/renderer/components/、features/、shared/、styles/
+- UI组件通过window.electronAPI与主进程通信，不得直接使用ipcRenderer
+- 性能要求：UI操作响应<200ms，使用React.memo、useMemo、useCallback优化
+- 聊天列表必须实现虚拟滚动（react-window），处理大量消息
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>window.electronAPI</name>
+      <kind>Global API Bridge</kind>
+      <signature>
+interface ElectronAPI {
+  getVersion: () => Promise&lt;string&gt;;
+  getPlatform: () => Promise&lt;string&gt;;
+  minimizeWindow: () => Promise&lt;void&gt;;
+  maximizeWindow: () => Promise&lt;void&gt;;
+  closeWindow: () => Promise&lt;void&gt;;
+  showMessageBox: (options) => Promise&lt;MessageBoxReturnValue&gt;;
+  openExternal: (url: string) => Promise&lt;void&gt;;
+  evolutionAPI: EvolutionAPIBridge;
+  on: (channel: string, callback: Function) => void;
+  off: (channel: string, callback: Function) => void;
+}
+      </signature>
+      <path>src/shared/types/electron-api.types.ts</path>
+    </interface>
+    <interface>
+      <name>ConnectionStateContext</name>
+      <kind>React Context</kind>
+      <signature>
+interface ConnectionStateContextType {
+  connectionState: ConnectionState;
+  updateConnectionState: (updates: Partial&lt;ConnectionState&gt;) => void;
+}
+      </signature>
+      <path>src/renderer/features/whatsapp/contexts/ConnectionStateContext.tsx</path>
+    </interface>
+    <interface>
+      <name>useEvolutionAPI Hook Pattern</name>
+      <kind>Custom Hook</kind>
+      <signature>
+// 参考现有Hook模式创建UI相关Hooks
+function useTheme() => { theme, setTheme, toggleTheme }
+function useResponsive() => { isMobile, isTablet, isDesktop, windowSize }
+      </signature>
+      <path>src/renderer/features/whatsapp/hooks/useEvolutionAPI.ts (参考)</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+项目使用Jest 29.7.0 + React Testing Library 16.0.1进行测试。所有测试文件位于组件同级目录，命名为*.test.tsx。测试覆盖率阈值：全局15%（当前基线），本故事目标80%+。
+
+测试模式：
+- 使用@testing-library/react的render、screen、fireEvent、waitFor进行组件测试
+- Mock window.electronAPI进行IPC通信测试
+- Mock子组件和Context进行隔离测试
+- 使用jest.mock进行依赖模拟
+- 测试文件必须包含describe/it结构，清晰的测试用例描述
+
+样式测试：
+- 使用identity-obj-proxy模拟CSS模块
+- 测试CSS类名存在性（container.querySelector）
+- 测试样式相关的行为（如主题切换后的class变化）
+
+可访问性测试：
+- 使用@testing-library/jest-dom的可访问性断言
+- 验证aria-label、role等属性
+- 测试键盘导航（Tab、Enter、Esc）
+    </standards>
+    <locations>
+- src/renderer/components/atoms/*/[ComponentName].test.tsx
+- src/renderer/components/molecules/*/[ComponentName].test.tsx
+- src/renderer/components/organisms/*/[ComponentName].test.tsx
+- src/renderer/shared/contexts/[ContextName].test.tsx
+- src/renderer/shared/hooks/[HookName].test.ts
+- src/renderer/App.test.tsx（主应用测试）
+    </locations>
+    <ideas>
+      <test id="AC1" criteria="实现主窗口布局：左侧聊天列表、右侧对话窗口、顶部搜索栏">
+        <idea>测试ChatList组件渲染340px固定宽度</idea>
+        <idea>测试ConversationWindow组件自动填充剩余空间</idea>
+        <idea>测试SearchBar组件在顶部正确定位</idea>
+        <idea>测试CSS Grid主布局结构正确应用</idea>
+      </test>
+      <test id="AC2" criteria="建立响应式布局系统，支持窗口大小调整">
+        <idea>测试窗口resize事件监听器正确触发</idea>
+        <idea>测试在768px断点下布局变化</idea>
+        <idea>测试在1024px断点下布局变化</idea>
+        <idea>测试useResponsive hook返回正确的窗口状态</idea>
+      </test>
+      <test id="AC3" criteria="创建基础组件库：按钮、输入框、消息气泡、头像等">
+        <idea>Button组件：测试primary/secondary/icon变体渲染</idea>
+        <idea>Button组件：测试点击事件处理和disabled状态</idea>
+        <idea>Input组件：测试text/search/textarea变体</idea>
+        <idea>Input组件：测试onChange事件和value受控</idea>
+        <idea>Avatar组件：测试图片、文字初始化、在线状态显示</idea>
+        <idea>Icon组件：测试SVG图标正确渲染</idea>
+        <idea>MessageBubble组件：测试消息内容、时间戳显示</idea>
+        <idea>ContactItem组件：测试联系人信息、头像、最后消息显示</idea>
+      </test>
+      <test id="AC4" criteria="实现暗黑/明亮主题切换功能">
+        <idea>测试ThemeContext初始主题状态</idea>
+        <idea>测试useTheme hook的toggleTheme功能</idea>
+        <idea>测试主题切换后CSS class变化（data-theme属性）</idea>
+        <idea>测试主题偏好持久化到localStorage</idea>
+        <idea>测试auto模式跟随系统主题（matchMedia）</idea>
+      </test>
+      <test id="AC5" criteria="确保界面元素与WhatsApp Web视觉差异<5%">
+        <idea>测试颜色变量正确定义（--wa-green: #25D366）</idea>
+        <idea>测试消息气泡圆角7.5px</idea>
+        <idea>测试字体系统使用system-ui</idea>
+        <idea>测试间距系统基础单位4px</idea>
+        <idea>快照测试：关键组件的DOM结构稳定性</idea>
+      </test>
+      <test id="General" criteria="通用测试场景">
+        <idea>测试组件无障碍属性（aria-label、role）</idea>
+        <idea>测试键盘导航：Tab焦点顺序、Enter触发操作、Esc关闭</idea>
+        <idea>测试错误边界处理组件崩溃</idea>
+        <idea>测试组件props类型验证（TypeScript类型错误）</idea>
+        <idea>测试虚拟滚动性能（react-window集成）</idea>
+      </test>
+    </ideas>
+  </tests>
+</story-context>

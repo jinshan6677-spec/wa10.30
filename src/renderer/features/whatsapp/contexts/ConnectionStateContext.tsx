@@ -92,27 +92,15 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
 
     // 连接状态更新
     const handleConnectionUpdate = (_event: any, eventData: any) => {
-      console.log('[ConnectionState] 📡 Connection update RAW data:', JSON.stringify(eventData, null, 2));
-      console.log('[ConnectionState] 📊 Current status:', connectionState.status);
-
       // 🔥 修复：Evolution API 的事件结构是 eventData.data.state，而不是 eventData.state
-      const data = eventData.data || eventData;
-      const state = data.state;
-      const user = data.user;
-
-      console.log('[ConnectionState] 📊 Extracted state:', state);
-      console.log('[ConnectionState] 📊 Extracted user:', user);
+      const data = eventData.data ?? eventData;
+      const {state} = data;
 
       if (state === 'open') {
-        const connectionTime = Date.now();
         console.log('[ConnectionState] ✅ WhatsApp connected successfully!');
-        console.log('[ConnectionState] 🔑 Instance key:', data.instance);
-        console.log('[ConnectionState] 📱 User data:', data.user);
-        console.log('[ConnectionState] 📊 Starting automatic data synchronization...');
 
         // 提取绑定的手机号（用于会话持久化）
-        const phoneNumber = data.user?.phoneNumber || data.user?.id?.replace('@s.whatsapp.net', '') || null;
-        console.log('[ConnectionState] 📱 Bound phone number:', phoneNumber);
+        const phoneNumber = data.user?.phoneNumber ?? data.user?.id?.replace('@s.whatsapp.net', '') ?? null;
 
         setConnectionState(prev => ({
           ...prev,
@@ -128,17 +116,11 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
         // 使用 chatAPI.syncChats 同步最新的聊天列表
         void (async () => {
           try {
-            const syncStartTime = Date.now();
-            console.log('[ConnectionState] 🔄 Syncing chats from Evolution API...');
+            // 🔥 关键修复：设置 MessageService 的实例名
+            await window.electronAPI.messageAPI.setInstance(data.instance);
             const syncResponse = await window.electronAPI.chatAPI.syncChats(data.instance);
 
-            if (syncResponse.success) {
-              const syncTime = Date.now() - syncStartTime;
-              console.log(`[ConnectionState] ✅ Chat sync completed in ${syncTime}ms`);
-              console.log(`[ConnectionState] 🎉 Total connection time: ${Date.now() - connectionTime}ms`);
-              // 发送事件通知聊天列表已更新
-              // ChatContext 会通过 'chat:list-updated' 事件自动接收更新
-            } else {
+            if (!syncResponse.success) {
               console.error('[ConnectionState] ❌ Chat sync failed:', syncResponse.error);
             }
           } catch (error) {
@@ -154,7 +136,6 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
           sessionValid: false, // 标记会话失效
         }));
       } else if (state === 'connecting') {
-        console.log('[ConnectionState] ⏳ WhatsApp is connecting (scanning QR code)...');
         setConnectionState(prev => ({
           ...prev,
           status: ConnectionStatus.CONNECTING,
@@ -232,7 +213,7 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
     // 检查是否在Electron环境中
     if (!electronAPI) {
       console.warn('ConnectionStateContext: Not running in Electron environment');
-      return;
+      return () => {};
     }
 
     electronAPI.on('evolution-api:websocket-connected', handleWebSocketConnected);
@@ -358,6 +339,17 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
             reconnectAttempts: 0,
             sessionValid: true,
           });
+
+          // 🔥 关键修复：设置 MessageService 的实例名（应用重启后恢复）
+          console.log('[ConnectionState] 📝 Setting MessageService instance name...');
+          await window.electronAPI.messageAPI.setInstance(INSTANCE_NAME);
+
+          // 🔥 关键修复：同步聊天列表（这也会设置 ChatService 的实例名）
+          console.log('[ConnectionState] 🔄 Syncing chats after session restore...');
+          const syncResponse = await window.electronAPI.chatAPI.syncChats(INSTANCE_NAME);
+          if (!syncResponse.success) {
+            console.error('[ConnectionState] ❌ Chat sync failed:', syncResponse.error);
+          }
 
           // 重新连接WebSocket以接收实时事件
           console.log('[ConnectionState] 🔌 Connecting WebSocket...');

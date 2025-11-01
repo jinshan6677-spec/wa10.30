@@ -1,0 +1,68 @@
+/* InputArea组件样式 */
+
+.input-area {
+  background-color: var(--bg-panel-header);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-top: 1px solid var(--border-primary);
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-sm);
+}
+
+.input-area-actions-left,
+.input-area-actions-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.input-area-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.input-area-field {
+  width: 100%;
+  min-height: 20px;
+  max-height: 120px; /* 增加最大高度以支持5行(约24px行高 * 5 = 120px) */
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  font-family: var(--font-family);
+  line-height: 1.5; /* 明确设置行高 */
+  resize: none;
+  overflow-y: hidden; /* 默认隐藏滚动条,由JS控制 */
+  outline: none;
+  transition: height 0.1s ease-out; /* 添加高度变化的平滑过渡 */
+}
+
+.input-area-field::placeholder {
+  color: var(--text-tertiary);
+}
+
+.input-area-field:focus {
+  box-shadow: 0 0 0 2px var(--border-focus);
+}
+
+.input-area-field:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input-area-character-count {
+  font-size: var(--font-size-sm, 12px);
+  color: var(--text-secondary);
+  text-align: right;
+  padding: 2px 8px;
+  margin-top: 2px;
+}
+
+.input-area-character-count.warning {
+  color: var(--color-error, #d32f2f);
+  font-weight: 600;
+}

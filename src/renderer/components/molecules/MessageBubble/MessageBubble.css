@@ -1,0 +1,181 @@
+/* MessageBubble 组件样式 - 遵循WhatsApp Web设计 */
+
+.message-bubble {
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 8px;
+  max-width: 100%;
+  padding: 0 12px;
+}
+
+/* 自己发送的消息 - 右对齐 */
+.message-bubble-own {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+}
+
+/* 他人发送的消息 - 左对齐 */
+.message-bubble-other {
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+/* 头像容器 */
+.message-bubble-avatar {
+  flex-shrink: 0;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.message-bubble-own .message-bubble-avatar {
+  margin-right: 0;
+  margin-left: 8px;
+}
+
+/* 消息内容包装器 */
+.message-bubble-content-wrapper {
+  max-width: 65%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 发送者名称（群聊） */
+.message-bubble-sender-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #667781;
+  margin-bottom: 4px;
+  padding-left: 12px;
+}
+
+/* 消息气泡主体 */
+.message-bubble-body {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 6px 10px 8px 10px;
+  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+  word-wrap: break-word;
+  word-break: break-word;
+  position: relative;
+}
+
+/* 自己发送的消息 - 绿色背景 */
+.message-bubble-own .message-bubble-body {
+  background-color: #d9fdd3;
+}
+
+/* 消息文本 */
+.message-bubble-text {
+  font-size: 14.2px;
+  line-height: 19px;
+  color: #111b21;
+  white-space: pre-wrap;
+  margin-bottom: 2px;
+}
+
+/* 元数据区域（时间和状态） */
+.message-bubble-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 2px;
+  float: right;
+  margin-left: 8px;
+}
+
+/* 时间戳 */
+.message-bubble-time {
+  font-size: 11px;
+  color: #667781;
+  line-height: 15px;
+  white-space: nowrap;
+}
+
+.message-bubble-own .message-bubble-time {
+  color: #667781;
+}
+
+/* 暗色主题 */
+[data-theme='dark'] .message-bubble-body {
+  background-color: #005c4b;
+  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='dark'] .message-bubble-own .message-bubble-body {
+  background-color: #005c4b;
+}
+
+[data-theme='dark'] .message-bubble-other .message-bubble-body {
+  background-color: #202c33;
+}
+
+[data-theme='dark'] .message-bubble-text {
+  color: #e9edef;
+}
+
+[data-theme='dark'] .message-bubble-time {
+  color: rgba(233, 237, 239, 0.6);
+}
+
+[data-theme='dark'] .message-bubble-sender-name {
+  color: #8696a0;
+}
+
+/* 重试按钮容器 */
+.message-bubble-retry {
+  margin-top: 4px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.message-bubble-retry-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #d32f2f;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.message-bubble-retry-button:hover {
+  background-color: rgba(211, 47, 47, 0.08);
+}
+
+.message-bubble-retry-button:active {
+  background-color: rgba(211, 47, 47, 0.16);
+}
+
+[data-theme='dark'] .message-bubble-retry-button {
+  color: #ef5350;
+}
+
+[data-theme='dark'] .message-bubble-retry-button:hover {
+  background-color: rgba(239, 83, 80, 0.08);
+}
+
+[data-theme='dark'] .message-bubble-retry-button:active {
+  background-color: rgba(239, 83, 80, 0.16);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .message-bubble-content-wrapper {
+    max-width: 75%;
+  }
+}
+
+@media (max-width: 480px) {
+  .message-bubble-content-wrapper {
+    max-width: 85%;
+  }
+  
+  .message-bubble {
+    padding: 0 8px;
+  }
+}

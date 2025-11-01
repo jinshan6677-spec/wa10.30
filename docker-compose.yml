@@ -34,7 +34,7 @@ services:
 
       # 认证配置
       AUTHENTICATION_TYPE: apikey
-      AUTHENTICATION_API_KEY: ${EVOLUTION_API_KEY:-changeme123}
+      AUTHENTICATION_API_KEY: dev_test_key_12345
 
       # CORS配置
       CORS_ORIGIN: "*"
@@ -54,22 +54,41 @@ services:
       DATABASE_SAVE_DATA_HISTORIC: "false"
       DATABASE_CONNECTION_CLIENT_NAME: "evolution_exchange"
 
+      # 🔥 Redis 配置 - 禁用 Redis 避免连接失败
+      CACHE_REDIS_ENABLED: "false"
+      CACHE_REDIS_URI: ""
+      CACHE_LOCAL_ENABLED: "true"
+
       # WebSocket配置
       WEBSOCKET_ENABLED: "true"
       WEBSOCKET_GLOBAL_EVENTS: "true"
 
       # 日志配置
-      LOG_LEVEL: "info"
+      LOG_LEVEL: "ERROR,WARN,DEBUG,INFO"
       LOG_COLOR: "true"
 
-      # 实例配置
-      QRCODE_LIMIT: 30
+      # 🔥 实例配置 - 优化连接速度
+      QRCODE_LIMIT: 10
       DEL_INSTANCE: "false"
 
-      # WhatsApp版本配置 - 留空自动检测
-      CONFIG_SESSION_PHONE_VERSION: ""
+      # 🔥 Baileys 连接优化 - 增加超时避免 Pre-key upload timeout
+      BAILEYS_CONNECTION_TIMEOUT: "60000"
+
+      # WhatsApp版本配置 - 使用最新稳定版本解决连接慢问题
+      # 参考: https://github.com/EvolutionAPI/evolution-api/issues/1014
+      CONFIG_SESSION_PHONE_VERSION: "2.3000.1023204200"
       CONFIG_SESSION_PHONE_CLIENT: "Evolution API"
       CONFIG_SESSION_PHONE_NAME: "Chrome"
+
+      # Baileys 性能优化配置
+      BROWSER_CLIENT: "Evolution API"
+      BROWSER_NAME: "Chrome"
+
+      # QR码生成优化
+      QRCODE_COLOR: "#198754"
+
+      # 日志级别 - 用于调试连接问题
+      LOG_BAILEYS: "error"
     volumes:
       - evolution_data:/evolution/instances
       - evolution_store:/evolution/store

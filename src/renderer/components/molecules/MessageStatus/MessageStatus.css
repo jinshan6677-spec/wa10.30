@@ -1,0 +1,63 @@
+/* MessageStatus 组件样式 */
+
+.message-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.message-status-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  color: #8696a0; /* 灰色 - WhatsApp次要色 */
+  transition: color 0.2s ease;
+}
+
+/* 发送中状态 - 灰色圆圈 */
+.message-status-pending .message-status-icon {
+  color: #8696a0;
+  opacity: 0.6;
+}
+
+/* 已发送状态 - 灰色单勾 */
+.message-status-sent .message-status-icon {
+  color: #8696a0;
+}
+
+/* 已送达状态 - 灰色双勾 */
+.message-status-delivered .message-status-icon {
+  color: #8696a0;
+}
+
+/* 已读状态 - 蓝色双勾 */
+.message-status-read .message-status-icon-read {
+  color: #53bdeb; /* WhatsApp 蓝色 */
+}
+
+/* 发送失败状态 - 红色警告图标 */
+.message-status-failed .message-status-icon-failed {
+  color: #ea0038; /* 错误红色 */
+}
+
+/* 暗色主题支持 */
+[data-theme='dark'] .message-status-icon {
+  color: #8696a0;
+}
+
+[data-theme='dark'] .message-status-read .message-status-icon-read {
+  color: #53bdeb;
+}
+
+[data-theme='dark'] .message-status-failed .message-status-icon-failed {
+  color: #ff6b6b;
+}
+
+/* 响应式 - 触摸设备上增大点击区域 */
+@media (hover: none) {
+  .message-status {
+    padding: 2px;
+  }
+}

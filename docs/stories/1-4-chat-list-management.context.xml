@@ -1,0 +1,294 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>4</storyId>
+    <title>聊天列表和联系人管理</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-01</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>E:\WhatsApp s\wa10.30\docs\stories\1-4-chat-list-management.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>WhatsApp用户</asA>
+    <iWant>看到完整的聊天列表和联系人信息</iWant>
+    <soThat>管理和访问我的对话</soThat>
+    <tasks>
+      <task id="1" title="集成Evolution API获取聊天列表数据" acs="1,5">
+        <subtask>在主进程创建聊天数据服务 (实现chat.service.ts、获取聊天列表、获取联系人详情、处理群组和单人聊天差异)</subtask>
+        <subtask>实现聊天数据缓存机制 (SQLite存储元数据、增量更新策略、缓存联系人信息)</subtask>
+        <subtask>创建IPC通信接口 (chat:get-list、chat:get-contact-info、chat:list-updated事件)</subtask>
+      </task>
+      <task id="2" title="实现完整聊天列表UI渲染" acs="1,5">
+        <subtask>扩展ChatList组件显示真实数据 (复用Story 1.3组件、集成真实数据、react-window虚拟滚动)</subtask>
+        <subtask>增强ContactItem显示更多信息 (消息预览、时间戳格式化、未读徽章、消息状态图标)</subtask>
+        <subtask>实现联系人在线状态显示 (复用Avatar组件、在线/离线指示器、最后上线时间)</subtask>
+      </task>
+      <task id="3" title="实现聊天搜索功能" acs="2">
+        <subtask>增强SearchBar组件支持高级搜索 (复用Story 1.3组件、按姓名搜索、按消息内容搜索、高亮匹配结果)</subtask>
+        <subtask>实现搜索结果过滤和排序 (按相关度排序、搜索历史、autocomplete建议)</subtask>
+        <subtask>优化搜索性能 (SQLite全文搜索索引、限制结果数量、渐进式加载)</subtask>
+      </task>
+      <task id="4" title="实现聊天置顶功能" acs="3">
+        <subtask>添加置顶UI交互 (右键菜单、长按菜单、图钉图标)</subtask>
+        <subtask>实现置顶逻辑 (调用Evolution API、置顶排序、取消置顶、持久化状态)</subtask>
+        <subtask>处理置顶聊天排序 (置顶聊天按时间排序、非置顶聊天排序、平滑动画过渡)</subtask>
+      </task>
+      <task id="5" title="实现聊天归档功能" acs="4">
+        <subtask>添加归档UI交互 (右键菜单、滑动归档按钮、已归档文件夹入口)</subtask>
+        <subtask>实现归档逻辑 (调用Evolution API、隐藏归档聊天、显示在归档文件夹、取消归档、持久化状态)</subtask>
+        <subtask>实现归档聊天视图 (创建ArchiveView组件、新消息通知、批量取消归档)</subtask>
+      </task>
+      <task id="6" title="编写单元测试和集成测试" acs="all">
+        <subtask>为ChatService编写单元测试 (API调用、缓存逻辑、错误处理)</subtask>
+        <subtask>为UI组件编写单元测试 (ChatList渲染、ContactItem交互、SearchBar搜索、置顶/归档功能)</subtask>
+        <subtask>编写端到端集成测试 (完整加载流程、搜索流程、置顶/归档流程)</subtask>
+        <subtask>达到测试覆盖率目标80%+</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC1">显示聊天列表，包含最新消息、时间戳、未读计数</criterion>
+    <criterion id="AC2">实现聊天搜索功能，支持按联系人名和消息内容搜索</criterion>
+    <criterion id="AC3">支持聊天置顶和取消置顶功能</criterion>
+    <criterion id="AC4">实现聊天归档和取消归档功能</criterion>
+    <criterion id="AC5">显示联系人头像、在线状态和最后上线时间</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>产品需求文档</title>
+        <section>FR001-FR008: WhatsApp核心功能克隆类</section>
+        <snippet>聊天列表、联系人管理、消息状态显示、群组功能是核心功能需求的基础组成部分。FR001要求完整的聊天界面布局（聊天列表、对话窗口、输入框），FR005要求联系人管理和群组功能。</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>产品需求文档</title>
+        <section>NFR001: 性能要求</section>
+        <snippet>UI操作响应时间：界面交互响应&lt;200ms，消息加载&lt;500ms。并发处理能力：支持同时处理10+个活跃聊天窗口。</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>决策架构文档</title>
+        <section>ADR-002: Evolution API Docker集成方案</section>
+        <snippet>使用官方Docker镜像运行Evolution API，通过REST和WebSocket进行通信。数据隐私本地控制，官方支持稳定性高。</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>决策架构文档</title>
+        <section>Data Architecture - 核心数据模型</section>
+        <snippet>Chat数据结构包含：whatsappId, name, avatarUrl, lastMessage, unreadCount, isPinned, isArchived, isGroup, isOnline, lastSeenAt等字段。数据库使用SQLite存储，支持全文搜索索引。</snippet>
+      </doc>
+      <doc>
+        <path>docs/stories/1-3-basic-ui-framework.md</path>
+        <title>Story 1.3: 基础UI框架和布局结构</title>
+        <section>已实现的可复用组件</section>
+        <snippet>Story 1.3已创建：ChatList（虚拟滚动）、ContactItem（基础UI）、Avatar（在线状态）、SearchBar（debounce）、ThemeContext（主题系统）等核心组件，可直接复用并扩展。</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic详细定义</title>
+        <section>Epic 1: Story 1.4定义</section>
+        <snippet>聊天列表和联系人管理需要集成Evolution API获取真实数据，实现搜索、置顶、归档功能，支持虚拟滚动和缓存优化。</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/renderer/components/organisms/ChatList/ChatList.tsx</path>
+        <kind>organism</kind>
+        <symbol>ChatList</symbol>
+        <lines>complete</lines>
+        <reason>Story 1.3已实现的聊天列表容器组件，包含react-window虚拟滚动，需要集成真实数据替换mock数据</reason>
+      </artifact>
+      <artifact>
+        <path>src/renderer/components/molecules/ContactItem/ContactItem.tsx</path>
+        <kind>molecule</kind>
+        <symbol>ContactItem</symbol>
+        <lines>complete</lines>
+        <reason>Story 1.3已实现的联系人列表项组件，基础UI已完成，需要增强显示最新消息、时间戳、未读徽章、消息状态图标</reason>
+      </artifact>
+      <artifact>
+        <path>src/renderer/components/atoms/Avatar/Avatar.tsx</path>
+        <kind>atom</kind>
+        <symbol>Avatar</symbol>
+        <lines>complete</lines>
+        <reason>Story 1.3已实现的头像组件，支持在线状态显示，可直接复用显示联系人在线/离线状态</reason>
+      </artifact>
+      <artifact>
+        <path>src/renderer/components/organisms/SearchBar/SearchBar.tsx</path>
+        <kind>organism</kind>
+        <symbol>SearchBar</symbol>
+        <lines>complete</lines>
+        <reason>Story 1.3已实现的搜索栏组件，包含debounce优化，需要增强支持按姓名和消息内容搜索，高亮匹配结果</reason>
+      </artifact>
+      <artifact>
+        <path>src/renderer/shared/contexts/ThemeContext.tsx</path>
+        <kind>context</kind>
+        <symbol>ThemeContext</symbol>
+        <lines>complete</lines>
+        <reason>Story 1.3已实现的主题系统，支持亮色/暗色主题切换，确保新增组件遵循主题系统</reason>
+      </artifact>
+      <artifact>
+        <path>src/main/services/evolution-api.service.ts</path>
+        <kind>service</kind>
+        <symbol>EvolutionApiService</symbol>
+        <lines>complete</lines>
+        <reason>Story 1.2已实现的Evolution API集成服务，提供WhatsApp连接、消息收发等基础功能，需要扩展聊天列表获取和联系人信息查询接口</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="react" version="18.3.1">UI框架</package>
+        <package name="react-dom" version="18.3.1">React DOM渲染</package>
+        <package name="react-window" version="1.8.10">虚拟滚动优化（Story 1.3已安装）</package>
+        <package name="date-fns" version="^3.0.6">时间格式化（需新增）</package>
+        <package name="better-sqlite3" version="9.6.0">SQLite数据库</package>
+        <package name="axios" version="1.7.7">HTTP请求</package>
+        <package name="socket.io-client" version="4.8.1">WebSocket连接</package>
+      </node>
+      <devDependencies>
+        <package name="@testing-library/react" version="14.3.1">React测试库</package>
+        <package name="@testing-library/jest-dom" version="6.5.0">Jest DOM匹配器</package>
+        <package name="@testing-library/user-event" version="^14.5.1">用户交互测试（需新增）</package>
+        <package name="vitest" version="2.1.3">测试运行器</package>
+      </devDependencies>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint category="architecture">遵循Electron多进程架构：主进程处理Evolution API集成和数据持久化，渲染进程处理UI展示，通过IPC通信桥接</constraint>
+    <constraint category="architecture">遵循原子化设计模式（Atomic Design）：Atoms → Molecules → Organisms，确保组件可复用性和一致性</constraint>
+    <constraint category="ui">严格复用Story 1.3已创建的组件：ChatList、ContactItem、Avatar、SearchBar、ThemeContext，避免重复开发</constraint>
+    <constraint category="ui">与WhatsApp Web视觉差异&lt;5%，使用WhatsApp官方色彩系统（#25D366主题色），保持图标和交互一致性</constraint>
+    <constraint category="ui">所有交互元素必须包含ARIA可访问性属性（role、aria-label、tabIndex、onKeyDown），确保键盘导航和屏幕阅读器支持</constraint>
+    <constraint category="performance">聊天列表必须使用react-window虚拟滚动，支持1000+聊天项流畅渲染，滚动帧率≥60fps</constraint>
+    <constraint category="performance">搜索功能必须实现debounce防抖（300ms延迟），使用SQLite全文搜索索引，响应时间&lt;500ms</constraint>
+    <constraint category="data">数据存储使用SQLite + SQLCipher加密，聊天列表元数据缓存在本地数据库，支持增量更新策略</constraint>
+    <constraint category="data">所有文件路径必须使用项目相对路径（去除{project-root}前缀），便于跨环境迁移</constraint>
+    <constraint category="testing">每个新增/修改的组件必须创建对应的.test.tsx文件，测试覆盖率目标≥80%</constraint>
+    <constraint category="testing">测试类型包括：渲染测试、props测试、事件测试、可访问性测试、边缘情况测试</constraint>
+    <constraint category="testing">使用data-testid或精确选择器定位元素，避免Story 1.3中Avatar测试查询歧义问题</constraint>
+    <constraint category="integration">所有Evolution API调用必须通过EvolutionAPIService统一接口，包含错误处理和重试机制</constraint>
+    <constraint category="integration">WebSocket事件监听必须在组件卸载时清理，避免内存泄漏</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>ChatItemData</name>
+      <kind>TypeScript Interface</kind>
+      <signature>interface ChatItemData { id: string; name: string; lastMessage?: string; lastMessageTime?: string; avatarSrc?: string; status?: OnlineStatus; unreadCount?: number; }</signature>
+      <path>src/renderer/components/organisms/ChatList/ChatList.tsx</path>
+      <usage>ChatList组件的数据模型，需要扩展以支持isPinned、isArchived、isGroup等字段</usage>
+    </interface>
+    <interface>
+      <name>ContactItemProps</name>
+      <kind>TypeScript Interface</kind>
+      <signature>interface ContactItemProps { name: string; lastMessage?: string; lastMessageTime?: string; avatarSrc?: string; status?: OnlineStatus; unreadCount?: number; active?: boolean; onClick?: () => void; className?: string; }</signature>
+      <path>src/renderer/components/molecules/ContactItem/ContactItem.tsx</path>
+      <usage>ContactItem组件的props定义，需要增强以支持消息状态图标、置顶/归档标识</usage>
+    </interface>
+    <interface>
+      <name>EvolutionAPIService</name>
+      <kind>TypeScript Class</kind>
+      <signature>class EvolutionAPIService { createInstance(), connectWebSocket(), getQRCode(), disconnect() }</signature>
+      <path>src/main/services/evolution-api.service.ts</path>
+      <usage>Evolution API集成服务，需要扩展添加getChats()、getContactInfo()等方法获取聊天列表数据</usage>
+    </interface>
+    <interface>
+      <name>IPC通信接口</name>
+      <kind>IPC Channel</kind>
+      <signature>chat:get-list (params: {}) => Promise&lt;Chat[]&gt;; chat:get-contact-info (params: {chatId: string}) => Promise&lt;ContactInfo&gt;; chat:list-updated (event: Chat[]) => void;</signature>
+      <path>src/main/ipc-handlers.ts</path>
+      <usage>主进程和渲染进程通信接口，需要新增以支持聊天列表数据传输和实时更新通知</usage>
+    </interface>
+    <interface>
+      <name>SQLite数据库表结构</name>
+      <kind>Database Schema</kind>
+      <signature>CREATE TABLE chats (id TEXT PRIMARY KEY, whatsapp_id TEXT UNIQUE, name TEXT, avatar_url TEXT, last_message TEXT, last_message_time DATETIME, unread_count INTEGER, is_pinned BOOLEAN, is_archived BOOLEAN, is_group BOOLEAN, is_online BOOLEAN, last_seen_at DATETIME);</signature>
+      <path>src/main/database/schema.sql</path>
+      <usage>聊天列表缓存表结构，需要创建并添加全文搜索索引（name, last_message）</usage>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      项目使用Jest + @testing-library/react进行单元测试和集成测试。测试标准：
+      1. 每个组件必须创建对应的.test.tsx文件，与组件文件同目录放置（co-located）
+      2. 测试覆盖率目标≥80%，包括分支覆盖和函数覆盖
+      3. 测试类型：渲染测试、props测试、用户交互测试、可访问性测试、边缘情况测试
+      4. 使用data-testid或container.querySelector精确定位元素，避免查询歧义（参考Story 1.3 Avatar测试问题）
+      5. 主进程服务测试使用Mock API调用，渲染进程组件测试使用Mock IPC通信
+      6. 集成测试覆盖完整用户流程：聊天列表加载→搜索→选择聊天→置顶/归档操作
+      7. 性能测试验证虚拟滚动（1000+聊天项）和搜索响应时间（&lt;500ms）
+    </standards>
+    <locations>
+      - src/main/services/*.test.ts - 主进程服务层单元测试
+      - src/renderer/components/**/*.test.tsx - 渲染进程组件单元测试
+      - src/renderer/features/whatsapp/**/*.test.tsx - WhatsApp功能模块测试
+      - __tests__/integration/ - 端到端集成测试（如需创建）
+    </locations>
+    <ideas>
+      <test ac="AC1" priority="high">
+        <title>聊天列表完整渲染测试</title>
+        <description>测试ChatList组件正确渲染聊天数据，包括最新消息、时间戳、未读徽章。验证空状态、加载状态、数据状态的UI展示。</description>
+      </test>
+      <test ac="AC1" priority="high">
+        <title>虚拟滚动性能测试</title>
+        <description>测试react-window虚拟滚动在1000+聊天项时的性能，验证滚动流畅度和内存使用。</description>
+      </test>
+      <test ac="AC2" priority="high">
+        <title>搜索功能单元测试</title>
+        <description>测试SearchBar组件的debounce防抖（300ms）、按姓名搜索、按消息内容搜索、高亮匹配结果功能。验证搜索历史和autocomplete建议。</description>
+      </test>
+      <test ac="AC2" priority="high">
+        <title>搜索性能和SQLite全文索引测试</title>
+        <description>测试SQLite全文搜索索引的性能，验证搜索响应时间&lt;500ms，限制结果数量（前50条）。</description>
+      </test>
+      <test ac="AC3" priority="medium">
+        <title>置顶功能交互测试</title>
+        <description>测试右键菜单显示"置顶聊天"选项、点击后调用API、UI更新显示图钉图标、置顶聊天排在列表顶部。验证取消置顶功能。</description>
+      </test>
+      <test ac="AC3" priority="medium">
+        <title>置顶状态持久化测试</title>
+        <description>测试置顶状态写入SQLite数据库、应用重启后状态保持、置顶聊天按最新消息时间排序。</description>
+      </test>
+      <test ac="AC4" priority="medium">
+        <title>归档功能交互测试</title>
+        <description>测试右键菜单显示"归档聊天"选项、归档后聊天从主列表隐藏、在"已归档"文件夹显示。验证取消归档恢复到主列表。</description>
+      </test>
+      <test ac="AC4" priority="medium">
+        <title>归档视图和新消息通知测试</title>
+        <description>测试ArchiveView组件显示归档聊天、归档聊天有新消息时显示通知徽章、批量取消归档功能。</description>
+      </test>
+      <test ac="AC5" priority="high">
+        <title>联系人信息显示测试</title>
+        <description>测试ContactItem组件显示头像、在线状态（绿点/灰点）、最后上线时间（"在线"/"5分钟前在线"）。验证Avatar组件的在线状态功能复用。</description>
+      </test>
+      <test ac="AC5" priority="high">
+        <title>消息状态图标显示测试</title>
+        <description>测试ContactItem显示消息状态图标（已读、已送达、已发送），验证图标正确性和可访问性。</description>
+      </test>
+      <test ac="all" priority="high">
+        <title>IPC通信集成测试</title>
+        <description>测试主进程chat:get-list、chat:get-contact-info IPC通道正确响应，渲染进程正确接收和处理数据。验证错误处理和重试机制。</description>
+      </test>
+      <test ac="all" priority="high">
+        <title>Evolution API集成测试</title>
+        <description>测试ChatService调用Evolution API获取聊天列表、联系人信息、置顶/归档API。验证API调用成功率、错误处理、缓存逻辑。</description>
+      </test>
+      <test ac="all" priority="medium">
+        <title>可访问性测试</title>
+        <description>测试所有交互元素包含正确的ARIA属性（role、aria-label、tabIndex）。验证键盘导航（Tab、Enter、空格键）和屏幕阅读器支持。</description>
+      </test>
+      <test ac="all" priority="medium">
+        <title>主题系统集成测试</title>
+        <description>测试新增组件正确应用ThemeContext主题（亮色/暗色），CSS变量正确使用，主题切换时UI更新。</description>
+      </test>
+      <test ac="all" priority="low">
+        <title>边缘情况测试</title>
+        <description>测试聊天列表为空、网络错误、API超时、数据库连接失败等边缘情况的错误处理和用户提示。</description>
+      </test>
+    </ideas>
+  </tests>
+</story-context>

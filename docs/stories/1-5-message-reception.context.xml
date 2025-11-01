@@ -1,0 +1,324 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.5</storyId>
+    <title>消息接收和基础显示</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-01</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-5-message-reception.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>WhatsApp用户</asA>
+    <iWant>能够接收并查看收到的消息</iWant>
+    <soThat>了解他人的沟通内容</soThat>
+    <tasks>
+      <task id="1" ac="#1,#2,#3,#4">创建消息数据模型和类型定义 - 定义Message接口、Evolution API事件接口、状态枚举</task>
+      <task id="2" ac="#1,#2">实现消息服务层 - MessageService、WebSocket监听、数据库存储、IPC handlers</task>
+      <task id="3" ac="#1,#2,#3,#4">创建消息UI组件 - MessageBubble、MessageStatus组件及测试</task>
+      <task id="4" ac="#1,#5">创建对话窗口组件 - ConversationWindow、虚拟滚动、自动滚动、"新消息"按钮</task>
+      <task id="5" ac="#1,#2">创建消息状态管理Context - MessageContext、实时消息监听、未读计数</task>
+      <task id="6" ac="#1,#5">集成对话窗口到主界面 - MainLayout集成、ChatList联动、未读消息定位</task>
+      <task id="7" ac="#3">实现消息时间戳格式化 - formatMessageTime、时区转换、本地化</task>
+      <task id="8" ac="全部">编写测试用例 - 单元测试、集成测试、运行测试套件</task>
+      <task id="9" ac="全部">代码审查和优化 - TypeScript检查、ESLint、性能验证、UI一致性</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">
+      <title>实时接收文本消息并正确显示在对话窗口</title>
+      <description>通过Evolution API WebSocket实时监听消息事件,接收到新消息时立即渲染到对话窗口,消息显示包含发送者信息、文本内容和时间戳,支持单聊和群聊消息的不同显示格式</description>
+    </criterion>
+    <criterion id="2">
+      <title>支持消息状态显示(已发送、已送达、已读)</title>
+      <description>显示发送状态图标: 单勾(已发送)、双勾(已送达)、蓝勾(已读),实时更新消息状态,状态图标位置和样式与WhatsApp Web完全一致,支持批量状态更新</description>
+    </criterion>
+    <criterion id="3">
+      <title>正确处理消息时间戳和时区显示</title>
+      <description>使用time-format.ts工具进行智能时间格式化,今天的消息显示时间,昨天的消息显示"昨天",更早的消息显示日期,自动处理时区转换确保时间显示准确</description>
+    </criterion>
+    <criterion id="4">
+      <title>显示消息发送者头像和姓名(群聊场景)</title>
+      <description>群聊消息显示发送者头像和姓名,单聊消息不显示发送者姓名,头像使用Avatar组件,支持发送者名称的点击查看联系人信息</description>
+    </criterion>
+    <criterion id="5">
+      <title>实现消息滚动到底部和未读消息定位</title>
+      <description>加载对话时自动滚动到最新消息,接收新消息时检查用户位置并智能滚动,如果用户正在查看历史消息则显示"新消息"提示按钮,支持点击按钮快速跳转,实现虚拟滚动优化性能</description>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>产品需求文档</title>
+        <section>FR002: 消息收发功能</section>
+        <snippet>消息收发功能（文本、图片、视频、文件、语音消息）,消息状态显示（已发送、已送达、已读）,实时消息同步和推送通知</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>产品需求文档</title>
+        <section>NFR001: 性能要求</section>
+        <snippet>UI操作响应时间：界面交互响应&lt;200ms，消息加载&lt;500ms。系统资源占用：内存使用&lt;500MB</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>决策架构文档</title>
+        <section>桌面应用架构 - Electron多进程</section>
+        <snippet>标准多进程架构：主进程(服务层)、渲染进程(React UI)、通过IPC安全通信。消息接收在主进程，显示在渲染进程</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>决策架构文档</title>
+        <section>数据存储架构 - SQLite + sql.js</section>
+        <snippet>分层加密存储，满足GDPR/CCPA合规，AES-256加密要求，高性能查询。Messages表结构需要支持chat_id、timestamp复合索引</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>决策架构文档</title>
+        <section>UI框架和状态管理</section>
+        <snippet>原子化设计 + Context API。React 18 + TypeScript。满足WhatsApp UI一致性要求、细粒度状态控制</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic分解文档</title>
+        <section>Epic 1 Story 1.5: 消息接收和基础显示</section>
+        <snippet>实现实时消息接收、状态显示、时间戳格式化、发送者头像、滚动优化和未读消息定位</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX设计规范</title>
+        <section>颜色策略 - WhatsApp品牌色</section>
+        <snippet>WhatsApp绿色主题、消息气泡背景色(#FFFFFF)、文本主色(#111B21)、次要色(#667781)</snippet>
+      </doc>
+      <doc>
+        <path>docs/API.md</path>
+        <title>API文档</title>
+        <section>IPC通信API</section>
+        <snippet>主进程API定义、窗口管理、应用信息、对话框。需要添加message相关IPC handlers</snippet>
+      </doc>
+      <doc>
+        <path>docs/stories/1-2-evolution-api-integration.md</path>
+        <title>Story 1.2: Evolution API集成</title>
+        <section>WebSocket事件监听</section>
+        <snippet>Evolution API WebSocket实时事件监听架构已建立。需要扩展监听messages.upsert和message.update事件</snippet>
+      </doc>
+      <doc>
+        <path>docs/stories/1-3-basic-ui-framework.md</path>
+        <title>Story 1.3: 基础UI框架</title>
+        <section>原子化组件库和虚拟滚动</section>
+        <snippet>Avatar组件已实现(支持图片、文字初始化)。react-window虚拟滚动已配置。原子化设计模式: Atoms→Molecules→Organisms</snippet>
+      </doc>
+      <doc>
+        <path>docs/stories/1-4-chat-list-management.md</path>
+        <title>Story 1.4: 聊天列表和联系人管理</title>
+        <section>数据库服务和Context模式</section>
+        <snippet>database.service.ts已实现(sql.js)。ChatContext状态管理模式已建立。time-format.ts工具已实现智能时间格式化</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/main/services/evolution-api.service.ts</path>
+        <kind>service</kind>
+        <symbol>EvolutionAPIService</symbol>
+        <lines>1-150</lines>
+        <reason>WebSocket事件监听基础已建立。需要扩展监听messages.upsert和message.update事件用于消息接收</reason>
+      </artifact>
+      <artifact>
+        <path>src/main/services/database.service.ts</path>
+        <kind>service</kind>
+        <symbol>DatabaseService</symbol>
+        <lines>1-100</lines>
+        <reason>sql.js数据库服务已实现。需要扩展添加messages表结构,支持消息存储和查询(chat_id+timestamp索引)</reason>
+      </artifact>
+      <artifact>
+        <path>src/main/services/chat.service.ts</path>
+        <kind>service</kind>
+        <symbol>ChatService</symbol>
+        <lines>all</lines>
+        <reason>聊天服务层参考。可参考其模式创建MessageService处理消息逻辑</reason>
+      </artifact>
+      <artifact>
+        <path>src/shared/types/chat.types.ts</path>
+        <kind>types</kind>
+        <symbol>MessageStatus</symbol>
+        <lines>4-12</lines>
+        <reason>MessageStatus枚举已定义(SENT, DELIVERED, READ, PENDING, FAILED)。可重用于消息状态管理</reason>
+      </artifact>
+      <artifact>
+        <path>src/shared/types/evolution-api.types.ts</path>
+        <kind>types</kind>
+        <symbol>EvolutionAPIConfig, WebSocketEventData</symbol>
+        <lines>1-80</lines>
+        <reason>Evolution API类型定义。需要添加消息事件相关类型(MessagesUpsertEvent, MessageUpdateEvent)</reason>
+      </artifact>
+      <artifact>
+        <path>src/renderer/features/whatsapp/contexts/ChatContext.tsx</path>
+        <kind>context</kind>
+        <symbol>ChatContext, ChatProvider</symbol>
+        <lines>1-80</lines>
+        <reason>Context模式参考。创建MessageContext时遵循相同模式:State+Actions接口,Provider组件,useContext hook</reason>
+      </artifact>
+      <artifact>
+        <path>src/renderer/components/atoms/Avatar/Avatar.tsx</path>
+        <kind>component</kind>
+        <symbol>Avatar</symbol>
+        <lines>1-50</lines>
+        <reason>Avatar组件已实现(支持图片、文字初始化、在线状态)。MessageBubble可直接使用显示发送者头像</reason>
+      </artifact>
+      <artifact>
+        <path>src/renderer/shared/utils/time-format.ts</path>
+        <kind>utility</kind>
+        <symbol>formatMessageTime</symbol>
+        <lines>21-58</lines>
+        <reason>智能时间格式化函数已实现(今天HH:mm,昨天,本周,今年)。MessageBubble可直接使用显示消息时间</reason>
+      </artifact>
+      <artifact>
+        <path>src/main/ipc-handlers.ts</path>
+        <kind>handler</kind>
+        <symbol>setupWebSocketEventForwarding</symbol>
+        <lines>24-57</lines>
+        <reason>IPC事件转发模式参考。需要添加message相关IPC handlers:message:get-list, message:subscribe, message:mark-read</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <runtime>Node.js &gt;=18.0.0</runtime>
+        <packageManager>npm &gt;=8.0.0</packageManager>
+      </node>
+      <frameworks>
+        <framework name="Electron" version="^33.0.0">桌面应用框架,多进程架构,主进程+渲染进程</framework>
+        <framework name="React" version="^18.3.1">UI框架,组件化开发,虚拟DOM</framework>
+        <framework name="TypeScript" version="^5.5.4">类型安全,严格模式</framework>
+      </frameworks>
+      <production>
+        <dependency name="react-dom" version="^18.3.1">React DOM渲染</dependency>
+        <dependency name="react-router-dom" version="^6.30.1">路由管理</dependency>
+        <dependency name="react-window" version="^1.8.11">虚拟滚动优化(关键:消息列表性能)</dependency>
+        <dependency name="date-fns" version="^3.6.0">时间格式化(关键:formatMessageTime使用)</dependency>
+        <dependency name="sql.js" version="^1.13.0">纯JS SQLite实现(关键:messages表存储)</dependency>
+        <dependency name="socket.io-client" version="^4.8.1">WebSocket客户端(关键:Evolution API实时事件)</dependency>
+        <dependency name="axios" version="^1.7.7">HTTP客户端(Evolution API REST调用)</dependency>
+        <dependency name="dotenv" version="^17.2.3">环境变量管理</dependency>
+        <dependency name="electron-is-dev" version="^3.0.1">开发环境检测</dependency>
+      </production>
+      <development>
+        <dependency name="jest" version="^29.7.0">测试框架</dependency>
+        <dependency name="@testing-library/react" version="^16.0.1">React组件测试</dependency>
+        <dependency name="@testing-library/jest-dom" version="^6.6.3">Jest DOM匹配器</dependency>
+        <dependency name="@testing-library/user-event" version="^14.5.2">用户交互模拟</dependency>
+        <dependency name="ts-jest" version="^29.2.5">TypeScript Jest转换</dependency>
+        <dependency name="@types/react" version="^18.3.12">React类型定义</dependency>
+        <dependency name="@types/react-window" version="^1.8.8">react-window类型定义</dependency>
+        <dependency name="@types/sql.js" version="^1.4.9">sql.js类型定义</dependency>
+        <dependency name="eslint" version="^8.57.0">代码质量检查</dependency>
+        <dependency name="prettier" version="^3.6.2">代码格式化</dependency>
+        <dependency name="webpack" version="^5.95.0">模块打包</dependency>
+      </development>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Electron多进程架构 - 消息接收在主进程(Evolution API WebSocket),消息显示在渲染进程(React组件),通过IPC安全通信</constraint>
+    <constraint>数据存储 - 使用sql.js本地数据库(避免原生模块better-sqlite3),手动调用saveToDisk()持久化,创建(chat_id,timestamp)复合索引优化查询</constraint>
+    <constraint>UI框架 - 遵循原子化设计(Atoms→Molecules→Organisms),MessageBubble是Molecule,ConversationWindow是Organism</constraint>
+    <constraint>性能优化 - 使用react-window虚拟滚动(&gt;100条消息时必需),消息分页加载(每次50条),防抖优化滚动事件,本地缓存减少API调用</constraint>
+    <constraint>响应时间 - UI操作响应&lt;200ms,消息加载&lt;500ms,消息接收响应&lt;200ms (NFR001要求)</constraint>
+    <constraint>TypeScript严格模式 - 避免any类型,所有函数和变量必需类型定义,所有IPC接口必需类型化</constraint>
+    <constraint>测试策略 - 单元测试(组件、服务、工具),集成测试(Context+组件),使用Jest+React Testing Library,目标覆盖率&gt;80%</constraint>
+    <constraint>重用现有组件 - Avatar组件(Story 1.3),time-format工具(Story 1.4),database.service(Story 1.4),ChatContext模式(Story 1.4)</constraint>
+    <constraint>不要使用better-sqlite3 - 避免原生模块依赖问题,继续使用sql.js</constraint>
+    <constraint>不要在渲染进程直接调用Evolution API - 安全风险,所有API调用必需通过主进程+IPC</constraint>
+    <constraint>错误处理 - 网络失败、数据库错误、WebSocket断连都需要优雅处理和用户提示</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>Evolution API WebSocket - messages.upsert</name>
+      <kind>WebSocket Event</kind>
+      <signature>socket.on('messages.upsert', (data: { messages: Message[] }) => void)</signature>
+      <path>src/main/services/evolution-api.service.ts (扩展)</path>
+    </interface>
+    <interface>
+      <name>Evolution API WebSocket - message.update</name>
+      <kind>WebSocket Event</kind>
+      <signature>socket.on('message.update', (data: { messageId: string, status: string }) => void)</signature>
+      <path>src/main/services/evolution-api.service.ts (扩展)</path>
+    </interface>
+    <interface>
+      <name>Evolution API REST - GET /message/findMessages/:instance</name>
+      <kind>REST API</kind>
+      <signature>GET /message/findMessages/:instance?chatId=&amp;limit=&amp;offset=</signature>
+      <path>Evolution API 2.3.6</path>
+    </interface>
+    <interface>
+      <name>Evolution API REST - POST /message/markRead/:instance</name>
+      <kind>REST API</kind>
+      <signature>POST /message/markRead/:instance Body: { messageId: string }</signature>
+      <path>Evolution API 2.3.6</path>
+    </interface>
+    <interface>
+      <name>IPC: message:get-list</name>
+      <kind>IPC Handler</kind>
+      <signature>ipcMain.handle('message:get-list', async (event, { chatId, limit, offset }) => IPCResponse&lt;Message[]&gt;)</signature>
+      <path>src/main/ipc-handlers.ts (新增)</path>
+    </interface>
+    <interface>
+      <name>IPC: message:subscribe</name>
+      <kind>IPC Handler</kind>
+      <signature>ipcMain.handle('message:subscribe', async (event, { chatId }) => IPCResponse&lt;void&gt;)</signature>
+      <path>src/main/ipc-handlers.ts (新增)</path>
+    </interface>
+    <interface>
+      <name>IPC: message:mark-read</name>
+      <kind>IPC Handler</kind>
+      <signature>ipcMain.handle('message:mark-read', async (event, { messageId }) => IPCResponse&lt;void&gt;)</signature>
+      <path>src/main/ipc-handlers.ts (新增)</path>
+    </interface>
+    <interface>
+      <name>Database: messages表</name>
+      <kind>SQL Schema</kind>
+      <signature>CREATE TABLE messages (id TEXT PRIMARY KEY, chat_id TEXT, sender_id TEXT, content TEXT, timestamp INTEGER, status TEXT, type TEXT, is_own BOOLEAN, metadata TEXT); CREATE INDEX idx_messages_chat_timestamp ON messages(chat_id, timestamp);</signature>
+      <path>src/main/services/database.service.ts (扩展)</path>
+    </interface>
+    <interface>
+      <name>MessageContext</name>
+      <kind>React Context</kind>
+      <signature>interface MessageContextValue { messages: Map&lt;chatId, Message[]&gt;, activeChat: string | null, loadMessages, subscribeToMessages, updateMessageStatus, markChatAsRead }</signature>
+      <path>src/renderer/features/whatsapp/contexts/MessageContext.tsx (新增)</path>
+    </interface>
+    <interface>
+      <name>Avatar组件 (重用)</name>
+      <kind>React Component</kind>
+      <signature>&lt;Avatar src={string} name={string} size={'sm'|'md'|'lg'} status={'online'|'offline'} /&gt;</signature>
+      <path>src/renderer/components/atoms/Avatar/Avatar.tsx</path>
+    </interface>
+    <interface>
+      <name>formatMessageTime (重用)</name>
+      <kind>Utility Function</kind>
+      <signature>formatMessageTime(timestamp: Date | number | string): string</signature>
+      <path>src/renderer/shared/utils/time-format.ts</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>测试框架使用Jest 29.7.0 + React Testing Library 16.0.1。每个组件必需创建对应.test.tsx文件。测试覆盖要求:组件渲染测试、交互行为测试(点击/滚动)、状态更新测试、错误处理测试、边缘情况测试(空列表/加载中)。使用jest.mock模拟IPC调用和Evolution API。目标覆盖率&gt;80%。参考Story 1.4测试模式:每个组件15+测试用例,Mock window.electronAPI,使用@testing-library/user-event模拟用户交互</standards>
+    <locations>
+      <location>src/renderer/components/molecules/MessageBubble/MessageBubble.test.tsx</location>
+      <location>src/renderer/components/organisms/ConversationWindow/ConversationWindow.test.tsx</location>
+      <location>src/main/services/message.service.test.ts</location>
+      <location>src/renderer/features/whatsapp/contexts/MessageContext.test.tsx</location>
+      <location>src/renderer/shared/utils/time-format.test.ts (扩展现有测试)</location>
+    </locations>
+    <ideas>
+      <idea ac="1">MessageBubble渲染测试:验证消息内容、发送者信息、时间戳显示,测试单聊/群聊显示差异,验证发送者/接收者样式(背景色/对齐)</idea>
+      <idea ac="2">MessageStatus组件测试:验证单勾/双勾/蓝勾图标显示,测试状态变化(sent→delivered→read),验证图标颜色和位置</idea>
+      <idea ac="3">时间格式化测试:验证formatMessageTime(今天HH:mm/昨天/本周/今年/其他),测试时区转换准确性,验证悬停提示完整时间</idea>
+      <idea ac="4">Avatar集成测试:验证群聊显示发送者头像和姓名,测试单聊不显示发送者姓名,验证头像点击事件</idea>
+      <idea ac="5">ConversationWindow滚动测试:验证加载时自动滚动到最新消息,测试接收新消息时智能滚动(用户在底部/查看历史),验证"新消息"按钮显示和点击跳转,测试虚拟滚动性能(&gt;100条消息)</idea>
+      <idea ac="1,2">MessageContext测试:验证loadMessages加载消息,测试subscribeToMessages实时接收,验证updateMessageStatus状态更新,测试unreadCounts计数,Mock IPC调用window.electronAPI.messageAPI</idea>
+      <idea ac="1,2">MessageService测试:验证getMessages分页功能(limit/offset),测试WebSocket事件处理(messages.upsert/message.update),验证消息状态更新逻辑,测试错误处理(网络失败/数据库错误)</idea>
+      <idea ac="全部">集成测试:验证完整消息流(WebSocket接收→数据库存储→Context更新→UI显示),测试多个聊天切换,验证未读消息定位,性能测试(消息加载&lt;500ms,UI响应&lt;200ms)</idea>
+    </ideas>
+  </tests>
+</story-context>

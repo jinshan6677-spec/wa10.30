@@ -1,6 +1,9 @@
 import { createRoot } from 'react-dom/client';
 
 import { App } from './App';
+import './styles/themes.css';
+import './styles/globals.css';
+import './styles/components.css';
 
 // 标志位确保只渲染一次
 let appRendered = false;

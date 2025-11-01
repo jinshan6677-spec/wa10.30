@@ -4,17 +4,19 @@ import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'r
 import './App.css';
 import { ConnectionStatus } from '../shared/types/evolution-api.types';
 
+import { MainLayout } from './components/organisms/MainLayout';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { UserSettingsProvider } from './contexts/UserSettingsContext';
 import { ConnectionStatusBar } from './features/whatsapp/components/ConnectionStatusBar';
 import { QRCodeDisplay } from './features/whatsapp/components/QRCodeDisplay';
+import { ChatProvider } from './features/whatsapp/contexts/ChatContext';
 import {
   ConnectionStateProvider,
   useConnectionState,
 } from './features/whatsapp/contexts/ConnectionStateContext';
-import { ChatProvider } from './features/whatsapp/contexts/ChatContext';
+import { MessageProvider } from './features/whatsapp/contexts/MessageContext';
 import { useEvolutionAPI } from './features/whatsapp/hooks/useEvolutionAPI';
 import { ThemeProvider } from './shared/contexts/ThemeContext';
-import { MainLayout } from './components/organisms/MainLayout';
-import { ProtectedRoute } from './components/ProtectedRoute';
 
 interface AppInfo {
   version: string;
@@ -33,38 +35,33 @@ const WhatsAppConnection: React.FC = () => {
   useEffect(() => {
     // 等待会话恢复逻辑完成（通过检查 sessionValid 和 status）
     if (hasInitialized) {
-      return;
+      return undefined;
     }
 
     // 🔥 关键修复：如果已经连接，跳过自动连接（说明会话已恢复）
     if (connectionState.status === ConnectionStatus.CONNECTED) {
-      console.log('[WhatsAppConnection] ✅ Session already restored (status: CONNECTED), skipping auto-connect');
       setHasInitialized(true);
-      return;
+      return undefined;
     }
 
     // 🔥 新增：如果正在连接中，也跳过（避免重复连接）
     if (connectionState.status === ConnectionStatus.CONNECTING) {
-      console.log('[WhatsAppConnection] ⏳ Already connecting, skipping auto-connect');
       setHasInitialized(true);
-      return;
+      return undefined;
     }
 
     // 🔥 新增：如果有 QR 码，说明连接流程已开始，跳过
     if (connectionState.status === ConnectionStatus.QR_CODE_READY) {
-      console.log('[WhatsAppConnection] 📱 QR code ready, skipping auto-connect');
       setHasInitialized(true);
-      return;
+      return undefined;
     }
 
     // 只在明确处于断开状态时，才尝试连接
     if (connectionState.status === ConnectionStatus.DISCONNECTED) {
       // 🔥 新增：延迟500ms以等待会话恢复逻辑完成
-      console.log('[WhatsAppConnection] ⏳ Status: DISCONNECTED, waiting 500ms for session restore...');
       const timer = setTimeout(() => {
         // 再次检查状态，如果仍是 DISCONNECTED 才连接
         if (connectionState.status === ConnectionStatus.DISCONNECTED) {
-          console.log('[WhatsAppConnection] 🔌 Session not restored, starting new connection...');
           setHasInitialized(true);
 
           const initConnection = async () => {
@@ -77,7 +74,6 @@ const WhatsAppConnection: React.FC = () => {
 
           void initConnection();
         } else {
-          console.log('[WhatsAppConnection] ✅ Session restored during wait, skipping auto-connect');
           setHasInitialized(true);
         }
       }, 500);
@@ -100,13 +96,8 @@ const WhatsAppConnection: React.FC = () => {
       connectionState.status === ConnectionStatus.CONNECTED &&
       location.pathname === '/setup'
     ) {
-      console.log('[WhatsAppConnection] ✅ Connected! Auto-redirecting to /chat...');
-      console.log('[WhatsAppConnection] 📍 Current location:', location.pathname);
-      console.log('[WhatsAppConnection] 📊 Connection status:', connectionState.status);
-
       // 🔥 关键修复：延迟导航到事件队列末尾，确保状态更新完成
       setTimeout(() => {
-        console.log('[WhatsAppConnection] 🚀 Executing delayed navigation to /chat');
         navigate('/chat', { replace: true });
       }, 0);
     }
@@ -115,7 +106,6 @@ const WhatsAppConnection: React.FC = () => {
   const handleConnect = () => {
     void (async () => {
       try {
-        console.log('[WhatsAppConnection] Manual connection triggered...');
         await connectWithHybridStrategy(INSTANCE_NAME);
       } catch (error) {
         console.error('[WhatsAppConnection] Connection error:', error);
@@ -126,7 +116,6 @@ const WhatsAppConnection: React.FC = () => {
   const handleRefreshQR = () => {
     void (async () => {
       try {
-        console.log('[WhatsAppConnection] Manual QR refresh requested');
         await refreshQRCode(INSTANCE_NAME);
       } catch (error) {
         console.error('[WhatsAppConnection] Refresh QR error:', error);
@@ -240,13 +229,18 @@ const App: React.FC = () => {
 
   return (
     <ThemeProvider>
-      <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <ConnectionStateProvider>
-          <ChatProvider>
-            <AppContent appInfo={appInfo} handleMinimize={handleMinimize} handleMaximize={handleMaximize} handleClose={handleClose} />
-          </ChatProvider>
-        </ConnectionStateProvider>
-      </HashRouter>
+      <UserSettingsProvider>
+        <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <ConnectionStateProvider>
+            <ChatProvider>
+              <MessageProvider>
+                {/* eslint-disable-next-line @typescript-eslint/no-use-before-define */}
+                <AppContent appInfo={appInfo} handleMinimize={handleMinimize} handleMaximize={handleMaximize} handleClose={handleClose} />
+              </MessageProvider>
+            </ChatProvider>
+          </ConnectionStateProvider>
+        </HashRouter>
+      </UserSettingsProvider>
     </ThemeProvider>
   );
 };
@@ -268,13 +262,8 @@ const AppContent: React.FC<{
       connectionState.status === ConnectionStatus.CONNECTED &&
       location.pathname === '/setup'
     ) {
-      console.log('[AppContent] 🚀 Global redirect: CONNECTED on /setup → navigating to /chat');
-      console.log('[AppContent] 📊 Status:', connectionState.status);
-      console.log('[AppContent] 📍 Location:', location.pathname);
-
       // 🔥 关键修复：延迟导航到事件队列末尾，确保状态更新完成
       setTimeout(() => {
-        console.log('[AppContent] 🚀 Executing delayed navigation to /chat');
         navigate('/chat', { replace: true });
       }, 0);
     }
@@ -287,14 +276,8 @@ const AppContent: React.FC<{
       !connectionState.sessionValid &&
       location.pathname === '/chat'
     ) {
-      console.log('[AppContent] 🔓 DISCONNECTED and session invalid on /chat → navigating to /setup');
-      console.log('[AppContent] 📊 Status:', connectionState.status);
-      console.log('[AppContent] 📊 Session valid:', connectionState.sessionValid);
-      console.log('[AppContent] 📍 Location:', location.pathname);
-
       // 🔥 关键修复：延迟导航到事件队列末尾，确保状态更新完成
       setTimeout(() => {
-        console.log('[AppContent] 🚀 Executing delayed navigation to /setup (logout)');
         navigate('/setup', { replace: true });
       }, 0);
     }
@@ -307,15 +290,8 @@ const AppContent: React.FC<{
       !connectionState.sessionValid &&
       location.pathname === '/chat'
     ) {
-      console.log('[AppContent] ❌ ERROR and session invalid on /chat → navigating to /setup');
-      console.log('[AppContent] 📊 Status:', connectionState.status);
-      console.log('[AppContent] 📊 Session valid:', connectionState.sessionValid);
-      console.log('[AppContent] 📍 Location:', location.pathname);
-      console.log('[AppContent] 📊 Error:', connectionState.error?.message);
-
       // 🔥 关键修复：延迟导航到事件队列末尾，确保状态更新完成
       setTimeout(() => {
-        console.log('[AppContent] 🚀 Executing delayed navigation to /setup (error)');
         navigate('/setup', { replace: true });
       }, 0);
     }
@@ -349,50 +325,50 @@ const AppContent: React.FC<{
 
       {/* 路由配置 */}
       <Routes>
-              <Route
-                path="/setup"
-                element={
-                  <main className="main-content">
-                    <div className="welcome-container">
-                      <h1>WhatsApp 连接</h1>
-                      <p style={{ color: '#666', marginBottom: '20px' }}>
+        <Route
+          path="/setup"
+          element={
+            <main className="main-content">
+              <div className="welcome-container">
+                <h1>WhatsApp 连接</h1>
+                <p style={{ color: '#666', marginBottom: '20px' }}>
                         连接您的 WhatsApp 账号以开始使用翻译功能
-                      </p>
+                </p>
 
-                      <WhatsAppConnection />
+                <WhatsAppConnection />
 
-                      <div className="development-notice" style={{ marginTop: '40px' }}>
-                        <h3>Evolution API 集成完成</h3>
-                        <p>
+                <div className="development-notice" style={{ marginTop: '40px' }}>
+                  <h3>Evolution API 集成完成</h3>
+                  <p>
                           ✅ Docker Compose 配置
-                          <br />
+                    <br />
                           ✅ API 服务类和 WebSocket 通信
-                          <br />
+                    <br />
                           ✅ 系统密钥链安全存储
-                          <br />
+                    <br />
                           ✅ 二维码显示和自动刷新
-                          <br />
+                    <br />
                           ✅ 连接状态管理
-                          <br />
+                    <br />
                           ✅ 自动重连机制
-                          <br />
+                    <br />
                           ✅ 登录成功自动跳转
-                        </p>
-                      </div>
-                    </div>
-                  </main>
-                }
-              />
-              <Route
-                path="/chat"
-                element={
-                  <ProtectedRoute>
-                    <main className="main-content" style={{ padding: 0 }}>
-                      <MainLayout />
-                    </main>
-                  </ProtectedRoute>
-                }
-              />
+                  </p>
+                </div>
+              </div>
+            </main>
+          }
+        />
+        <Route
+          path="/chat"
+          element={
+            <ProtectedRoute>
+              <main className="main-content" style={{ padding: 0 }}>
+                <MainLayout />
+              </main>
+            </ProtectedRoute>
+          }
+        />
         <Route path="/" element={<Navigate to="/setup" replace />} />
       </Routes>
     </div>

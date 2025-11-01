@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const webpack = require('webpack');
 
 module.exports = (env, argv) => {
@@ -12,7 +13,7 @@ module.exports = (env, argv) => {
       path: path.resolve(__dirname, 'build/renderer'),
       filename: isProduction ? '[name].[contenthash].js' : '[name].js',
       clean: true,
-      globalObject: 'this', // Fix for Electron renderer context
+      globalObject: 'this',
     },
     resolve: {
       extensions: ['.tsx', '.ts', '.js', '.jsx'],
@@ -32,7 +33,11 @@ module.exports = (env, argv) => {
         },
         {
           test: /\.css$/,
-          use: ['style-loader', 'css-loader', 'postcss-loader'],
+          use: [
+            isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
+            'css-loader',
+            'postcss-loader'
+          ],
         },
         {
           test: /\.(png|svg|jpg|jpeg|gif)$/i,
@@ -55,7 +60,7 @@ module.exports = (env, argv) => {
         template: './public/index.html',
         filename: 'index.html',
         inject: 'body',
-        scriptLoading: 'blocking', // Fix: Use blocking instead of defer for Electron file:// protocol
+        scriptLoading: 'blocking',
         minify: isProduction ? {
           removeComments: true,
           collapseWhitespace: true,
@@ -69,12 +74,15 @@ module.exports = (env, argv) => {
           minifyURLs: true,
         } : false,
       }),
+      ...(isProduction ? [new MiniCssExtractPlugin({
+        filename: '[name].[contenthash].css',
+      })] : []),
       new webpack.DefinePlugin({
-        'global': 'window', // Fix: Define 'global' as 'window' for Electron renderer
+        'global': 'window',
       }),
       new webpack.ProvidePlugin({
-        process: 'process/browser', // Provide process polyfill if needed
-        Buffer: ['buffer', 'Buffer'], // Provide Buffer polyfill if needed
+        process: 'process/browser',
+        Buffer: ['buffer', 'Buffer'],
       }),
     ],
     devServer: {
@@ -93,7 +101,7 @@ module.exports = (env, argv) => {
         chunks: 'all',
         cacheGroups: {
           vendor: {
-            test: /[\\/]node_modules[\\/]/,
+            test: /[\/]node_modules[\/]/,
             name: 'vendors',
             chunks: 'all',
           },

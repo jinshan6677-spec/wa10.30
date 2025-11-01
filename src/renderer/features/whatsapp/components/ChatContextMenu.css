@@ -1,0 +1,75 @@
+/* ChatContextMenu 样式 */
+
+.chat-context-menu {
+  position: fixed;
+  z-index: 1000;
+  min-width: 180px;
+  background-color: var(--color-background, #fff);
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 4px 0;
+  animation: menuFadeIn 0.15s ease-out;
+}
+
+@keyframes menuFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.chat-context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: var(--color-text-primary, #000);
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.chat-context-menu-item:hover {
+  background-color: var(--color-hover, rgba(0, 0, 0, 0.05));
+}
+
+.chat-context-menu-item:active {
+  background-color: var(--color-active, rgba(0, 0, 0, 0.1));
+}
+
+.chat-context-menu-icon {
+  font-size: 18px;
+  opacity: 0.8;
+}
+
+.chat-context-menu-text {
+  flex: 1;
+}
+
+/* 暗色主题 */
+[data-theme='dark'] .chat-context-menu {
+  background-color: var(--color-background-dark, #1f2c33);
+  border-color: var(--color-border-dark, #2a3942);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='dark'] .chat-context-menu-item {
+  color: var(--color-text-primary-dark, #e9edef);
+}
+
+[data-theme='dark'] .chat-context-menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .chat-context-menu-item:active {
+  background-color: rgba(255, 255, 255, 0.15);
+}

@@ -1,0 +1,133 @@
+/* MainLayout组件样式 */
+
+.main-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  height: 100%;
+  width: 100%;
+  background-color: var(--bg-primary);
+  overflow: hidden;
+}
+
+.main-layout-sidebar {
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-primary);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.main-layout-sidebar-header {
+  background-color: var(--bg-panel-header);
+  height: 60px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.main-layout-title {
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.main-layout-sidebar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.main-layout-search {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.main-layout-search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 8px 12px;
+  transition: background-color 0.2s;
+}
+
+.main-layout-search-input-wrapper:focus-within {
+  background-color: var(--bg-primary);
+}
+
+.main-layout-search-icon {
+  font-size: 16px;
+  margin-right: 12px;
+  color: var(--text-tertiary);
+}
+
+.main-layout-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.main-layout-search-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.main-layout-search-clear {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 4px;
+  margin-left: 8px;
+  transition: color 0.2s;
+}
+
+.main-layout-search-clear:hover {
+  color: var(--text-primary);
+}
+
+.main-layout-content {
+  background-color: var(--bg-chat);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.main-layout-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .main-layout-sidebar {
+    display: none;
+  }
+
+  .main-layout-sidebar.active {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: var(--z-modal);
+  }
+}

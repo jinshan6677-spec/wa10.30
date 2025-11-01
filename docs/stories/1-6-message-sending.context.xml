@@ -1,0 +1,446 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.6</storyId>
+    <title>消息发送功能</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-01</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>E:\WhatsApps\wa10.30/docs/stories/1-6-message-sending.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>WhatsApp用户</asA>
+    <iWant>能够发送文本消息给联系人和群组</iWant>
+    <soThat>与他人进行沟通</soThat>
+    <tasks>
+      <task id="1" ac="#1, #5">扩展消息服务层支持发送功能
+        <subtask id="1.1">在message.service.ts添加sendTextMessage方法，调用Evolution API发送文本消息</subtask>
+        <subtask id="1.2">实现消息发送状态追踪 (sending/sent/failed)</subtask>
+        <subtask id="1.3">在ipc-handlers.ts添加message:send IPC handler</subtask>
+        <subtask id="1.4">在preload.ts暴露sendMessage API</subtask>
+        <subtask id="1.5">在electron-api.types.ts添加类型定义</subtask>
+      </task>
+
+      <task id="2" ac="#5">实现消息发送失败重试机制
+        <subtask id="2.1">在message.service.ts实现指数退避重试逻辑 (1s, 2s, 4s)</subtask>
+        <subtask id="2.2">在database.service.ts添加failed_messages表和相关方法</subtask>
+        <subtask id="2.3">创建后台重试服务 message-retry.service.ts</subtask>
+        <subtask id="2.4">在MessageContext添加retryFailedMessage方法</subtask>
+      </task>
+
+      <task id="3" ac="#1, #2">完善InputArea组件
+        <subtask id="3.1">扩展InputArea组件功能（多行输入、自动高度调整）</subtask>
+        <subtask id="3.2">实现键盘事件处理（Enter发送、Shift+Enter换行）</subtask>
+        <subtask id="3.3">实现handleSend发送消息逻辑</subtask>
+        <subtask id="3.4">添加发送按钮和loading状态</subtask>
+        <subtask id="3.5">实现InputArea.test.tsx单元测试</subtask>
+      </task>
+
+      <task id="4" ac="#1, #3">实现MessageContext发送方法
+        <subtask id="4.1">在MessageContext添加sendMessage方法</subtask>
+        <subtask id="4.2">处理发送成功响应（更新whatsappId和状态）</subtask>
+        <subtask id="4.3">处理发送失败（标记failed、显示错误）</subtask>
+        <subtask id="4.4">实现WebSocket状态更新监听 (messages.update事件)</subtask>
+      </task>
+
+      <task id="5" ac="#4">实现消息输入状态 (typing indicator)
+        <subtask id="5.1">在message.service.ts添加sendTypingStatus方法</subtask>
+        <subtask id="5.2">在InputArea实现typing事件发送（防抖300ms）</subtask>
+        <subtask id="5.3">在MessageContext添加typing状态管理</subtask>
+        <subtask id="5.4">在ChatHeader显示typing指示器</subtask>
+      </task>
+
+      <task id="6" ac="#1, #2">集成发送功能到ConversationWindow
+        <subtask id="6.1">在ConversationWindow集成InputArea组件</subtask>
+        <subtask id="6.2">实现消息发送后UI更新（自动滚动、更新预览）</subtask>
+        <subtask id="6.3">处理发送失败的UI反馈（错误图标、重试按钮）</subtask>
+      </task>
+
+      <task id="7" ac="#3">优化MessageBubble显示发送状态
+        <subtask id="7.1">扩展MessageBubble支持发送状态图标 (sending/sent/delivered/read/failed)</subtask>
+        <subtask id="7.2">添加重试按钮交互</subtask>
+      </task>
+
+      <task id="8" ac="全部">编写测试用例
+        <subtask id="8.1">创建message.service发送功能测试</subtask>
+        <subtask id="8.2">创建InputArea组件测试</subtask>
+        <subtask id="8.3">扩展MessageContext集成测试</subtask>
+        <subtask id="8.4">运行完整测试套件确保无regression</subtask>
+      </task>
+
+      <task id="9" ac="全部">代码审查和优化
+        <subtask id="9.1">TypeScript类型检查（npm run type-check）</subtask>
+        <subtask id="9.2">ESLint代码质量检查（npm run lint）</subtask>
+        <subtask id="9.3">性能优化验证（发送响应<200ms）</subtask>
+        <subtask id="9.4">UI一致性检查（对比WhatsApp Web）</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">实现文本消息输入和发送功能
+      - 提供文本输入框，支持多行文本输入
+      - 实现发送按钮，点击后将消息发送给当前聊天对象
+      - 通过Evolution API的POST /message/sendText/:instance端点发送消息
+      - 发送成功后消息立即显示在对话窗口中
+      - 支持单聊和群聊消息发送
+    </criterion>
+
+    <criterion id="2">支持Enter键发送，Shift+Enter换行
+      - 按Enter键立即发送消息
+      - 按Shift+Enter组合键在输入框中插入换行符
+      - 提供用户设置选项：可切换Enter键行为（发送/换行）
+      - 输入框高度随内容自适应（最多5行，超出则滚动）
+      - Enter键发送后自动清空输入框并重置高度
+    </criterion>
+
+    <criterion id="3">实现消息发送状态实时更新
+      - 发送前消息显示"发送中"状态（loading图标）
+      - Evolution API返回成功后更新为"已发送"（单勾）
+      - 通过WebSocket接收状态更新事件（delivered, read）
+      - 实时更新MessageBubble组件的状态图标
+      - 发送失败显示红色错误图标和"发送失败"提示
+    </criterion>
+
+    <criterion id="4">支持消息输入状态显示（正在输入...）
+      - 用户开始输入时发送typing事件给Evolution API
+      - 对方输入时在ChatHeader显示"正在输入..."提示
+      - 停止输入3秒后自动取消typing状态
+      - 使用防抖优化，避免频繁发送typing事件
+      - 群聊显示"[联系人名]正在输入..."
+    </criterion>
+
+    <criterion id="5">处理发送失败和重试机制
+      - 网络错误、API超时时标记消息为"失败"状态
+      - 失败消息旁显示"重试"按钮
+      - 点击重试按钮重新发送消息
+      - 实现指数退避重试策略（1s, 2s, 4s最多3次）
+      - 重试失败后提示用户检查网络连接
+      - 本地存储失败消息，应用重启后可继续重试
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR002 - 消息收发功能</section>
+        <snippet>消息收发功能要求支持文本、图片、视频、文件、语音消息的发送，包含消息状态显示（已发送、已送达、已读）功能。</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>NFR001 - 性能要求</section>
+        <snippet>UI操作响应时间要求界面交互响应<200ms，消息加载<500ms，支持同时处理10+个活跃聊天窗口。</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>NFR002 - 可靠性和稳定性</section>
+        <snippet>API调用成功率要求>99%，自动重试机制和降级策略，数据同步一致性消息状态同步延迟<2秒。</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Decision Document</title>
+        <section>桌面应用架构 - 标准多进程架构</section>
+        <snippet>采用Electron多进程架构，主进程负责Evolution API集成和核心服务，渲染进程负责React UI，通过IPC进行安全通信。</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Decision Document</title>
+        <section>WhatsApp API集成 - Evolution API v2</section>
+        <snippet>使用Evolution API Docker容器通过REST和WebSocket集成WhatsApp功能，确保数据隐私控制和官方稳定支持。</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Decision Document</title>
+        <section>Project Structure</section>
+        <snippet>服务层位于src/main/services/，React组件采用原子化设计src/renderer/components/，IPC handlers集中在src/main/ipc-handlers.ts。</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Decision Document</title>
+        <section>错误处理架构 - 分层错误处理 + 选择性断路器</section>
+        <snippet>实现指数退避重试机制，满足>99.5%可用性要求和崩溃恢复>95%，包含自定义实现和重试机制。</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Decision Document</title>
+        <section>Naming Conventions - IPC事件</section>
+        <snippet>IPC事件命名采用{feature}:{action}格式，例如message:send, whatsapp:status-changed。</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/stories/1-2-evolution-api-integration.md</path>
+        <title>Story 1.2 - Evolution API集成和认证机制</title>
+        <section>Dev Notes</section>
+        <snippet>Evolution API基础集成已完成，包含EvolutionAPIService、WebSocket连接管理、IPC handlers架构，为消息发送功能提供基础。</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/stories/1-5-message-reception.md</path>
+        <title>Story 1.5 - 消息接收和基础显示</title>
+        <section>Dev Notes - Learnings from Previous Story</section>
+        <snippet>message.service.ts、MessageContext、MessageBubble、ConversationWindow已实现，数据库使用sql.js（避免better-sqlite3原生模块问题），IPC通信模式已建立。</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/main/services/message.service.ts</path>
+        <kind>service</kind>
+        <symbol>MessageService</symbol>
+        <lines>1-50</lines>
+        <reason>现有消息服务类，需扩展添加sendTextMessage、sendWithRetry、sendTypingStatus方法</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/main/services/evolution-api.service.ts</path>
+        <kind>service</kind>
+        <symbol>EvolutionAPIService</symbol>
+        <lines>all</lines>
+        <reason>Evolution API集成服务，提供HTTP和WebSocket通信基础，消息发送需调用其API方法</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/main/services/database.service.ts</path>
+        <kind>service</kind>
+        <symbol>DatabaseService</symbol>
+        <lines>all</lines>
+        <reason>数据库服务（sql.js），需扩展添加failed_messages表和相关方法用于失败消息重试</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/main/ipc-handlers.ts</path>
+        <kind>file</kind>
+        <symbol>IPC Handlers</symbol>
+        <lines>1-50</lines>
+        <reason>IPC通信处理器集中文件，需添加message:send handler用于渲染进程发送消息请求</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/preload/preload.ts</path>
+        <kind>file</kind>
+        <symbol>Preload Script</symbol>
+        <lines>1-50</lines>
+        <reason>预加载脚本，需在messageAPI对象中暴露sendMessage方法供渲染进程调用</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/shared/types/electron-api.types.ts</path>
+        <kind>interface</kind>
+        <symbol>MessageAPIBridge</symbol>
+        <lines>44-56</lines>
+        <reason>Message API接口定义，需扩展添加sendMessage方法类型</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/shared/types/message.types.ts</path>
+        <kind>interface</kind>
+        <symbol>Message, SendMessageRequest</symbol>
+        <lines>22-90</lines>
+        <reason>消息数据类型定义，包含Message接口和SendMessageRequest，可能需扩展retryCount字段</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/renderer/features/whatsapp/contexts/MessageContext.tsx</path>
+        <kind>component</kind>
+        <symbol>MessageContext</symbol>
+        <lines>all</lines>
+        <reason>消息状态管理Context，需添加sendMessage、retryFailedMessage、sendTypingStatus方法</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/renderer/components/molecules/InputArea/InputArea.tsx</path>
+        <kind>component</kind>
+        <symbol>InputArea</symbol>
+        <lines>all</lines>
+        <reason>输入区域组件（Story 1.5已创建），需完善发送功能、Enter/Shift+Enter处理、typing事件</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/renderer/components/molecules/MessageBubble/MessageBubble.tsx</path>
+        <kind>component</kind>
+        <symbol>MessageBubble</symbol>
+        <lines>all</lines>
+        <reason>消息气泡组件，需扩展支持发送状态图标(sending/sent/delivered/read/failed)和重试按钮</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/renderer/components/organisms/ConversationWindow/ConversationWindow.tsx</path>
+        <kind>component</kind>
+        <symbol>ConversationWindow</symbol>
+        <lines>all</lines>
+        <reason>对话窗口组件，需集成InputArea发送功能并处理发送后UI更新</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/renderer/components/molecules/ChatHeader/ChatHeader.tsx</path>
+        <kind>component</kind>
+        <symbol>ChatHeader</symbol>
+        <lines>all</lines>
+        <reason>聊天头部组件，需添加typing指示器显示"正在输入..."</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <ecosystem name="node">
+        <package name="axios" version="^1.7.7">HTTP客户端，用于调用Evolution API发送消息</package>
+        <package name="socket.io-client" version="^4.8.1">WebSocket客户端，接收消息状态更新事件</package>
+        <package name="sql.js" version="^1.11.0">浏览器端SQLite数据库，存储消息和失败消息队列</package>
+        <package name="electron" version="^33.0.0">桌面应用框架，提供多进程架构和IPC通信</package>
+        <package name="react" version="^18.3.1">UI框架，构建输入组件和消息显示</package>
+        <package name="typescript" version="^5.6.3">类型安全，确保接口定义完整</package>
+      </ecosystem>
+      <framework name="Evolution API v2.3.6">
+        WhatsApp消息发送API: POST /message/sendText/:instance
+        Typing状态API: POST /chat/sendPresence/:instance
+        WebSocket事件: messages.update (状态更新)
+      </framework>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint category="architecture">Electron多进程架构 - 消息发送在主进程执行，输入处理在渲染进程，通过IPC安全通信</constraint>
+    <constraint category="architecture">Evolution API集成 - 使用POST /message/sendText/:instance发送消息，POST /chat/sendPresence/:instance发送typing状态</constraint>
+    <constraint category="data">使用sql.js本地数据库（避免better-sqlite3原生模块依赖），手动调用saveToDisk()持久化数据</constraint>
+    <constraint category="performance">消息发送响应时间<200ms（PRD NFR001要求），防抖优化typing事件300ms</constraint>
+    <constraint category="error-handling">指数退避重试策略（1s, 2s, 4s最多3次），满足>99%API成功率要求</constraint>
+    <constraint category="error-handling">失败消息本地存储到failed_messages表，应用重启后可继续重试</constraint>
+    <constraint category="ui">乐观更新 - 发送前立即显示消息（status=sending），提升用户体验</constraint>
+    <constraint category="ui">InputArea键盘事件 - 处理中文输入法isComposing状态，避免Enter键冲突</constraint>
+    <constraint category="naming">IPC事件命名: message:send, message:retry, message:typing</constraint>
+    <constraint category="testing">每个新组件/服务创建对应测试文件，使用Jest + React Testing Library</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>Evolution API - Send Text Message</name>
+      <kind>REST endpoint</kind>
+      <signature>POST /message/sendText/:instance
+Body: { number: string, text: string, delay?: number }
+Response: { key: { id, remoteJid, fromMe }, message, messageTimestamp, status: 'PENDING' }</signature>
+      <path>Evolution API v2.3.6</path>
+    </interface>
+
+    <interface>
+      <name>Evolution API - Send Presence (Typing)</name>
+      <kind>REST endpoint</kind>
+      <signature>POST /chat/sendPresence/:instance
+Body: { number: string, presence: 'composing' | 'paused' }
+Response: { success: boolean }</signature>
+      <path>Evolution API v2.3.6</path>
+    </interface>
+
+    <interface>
+      <name>WebSocket - Messages Update Event</name>
+      <kind>WebSocket event</kind>
+      <signature>socket.on('messages.update', (data) => {
+  // data: { instance, data: [{ key: { id, remoteJid }, status: 'SENT'|'DELIVERED'|'READ' }] }
+})</signature>
+      <path>Evolution API WebSocket</path>
+    </interface>
+
+    <interface>
+      <name>IPC - message:send</name>
+      <kind>IPC handler</kind>
+      <signature>ipcMain.handle('message:send', async (_, params: SendMessageParams) => Promise&lt;Message&gt;)
+Params: { chatId: string, content: string, instanceId: string }</signature>
+      <path>src/main/ipc-handlers.ts</path>
+    </interface>
+
+    <interface>
+      <name>MessageService.sendTextMessage</name>
+      <kind>method</kind>
+      <signature>sendTextMessage(chatId: string, content: string, instanceId: string): Promise&lt;Message&gt;
+调用Evolution API发送消息，返回包含临时ID和whatsappId的Message对象</signature>
+      <path>src/main/services/message.service.ts</path>
+    </interface>
+
+    <interface>
+      <name>MessageContext.sendMessage</name>
+      <kind>React Context method</kind>
+      <signature>sendMessage(chatId: string, content: string): Promise&lt;void&gt;
+创建临时消息→调用IPC→更新状态→处理成功/失败</signature>
+      <path>src/renderer/features/whatsapp/contexts/MessageContext.tsx</path>
+    </interface>
+
+    <interface>
+      <name>DatabaseService.saveFailedMessage</name>
+      <kind>method</kind>
+      <signature>saveFailedMessage(message: Message, error: string): Promise&lt;void&gt;
+保存失败消息到failed_messages表用于后续重试</signature>
+      <path>src/main/services/database.service.ts</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      测试框架：Jest + React Testing Library
+
+      服务层测试（src/main/services/*.test.ts）：
+      - Mock axios用于API调用测试
+      - Mock database.service和evolution-api.service
+      - 测试异步方法使用async/await和Promise
+      - 验证重试逻辑和错误处理
+
+      React组件测试（src/renderer/**/*.test.tsx）：
+      - 使用@testing-library/react渲染组件
+      - 使用@testing-library/user-event模拟用户交互
+      - Mock window.electronAPI IPC调用
+      - 测试Context Provider和Consumer
+      - 验证键盘事件（Enter、Shift+Enter）
+
+      测试覆盖要求：
+      - 新增代码测试覆盖率>80%
+      - 关键路径（发送成功、失败、重试）100%覆盖
+      - 边界条件测试（空消息、网络错误、API超时）
+    </standards>
+    <locations>
+      src/main/services/message.service.test.ts - MessageService发送功能测试（扩展现有文件）
+      src/main/services/message-retry.service.test.ts - 重试服务测试（新建）
+      src/renderer/components/molecules/InputArea/InputArea.test.tsx - 输入组件测试（扩展现有文件）
+      src/renderer/features/whatsapp/contexts/MessageContext.test.tsx - 消息上下文测试（扩展现有文件）
+      src/renderer/components/molecules/MessageBubble/MessageBubble.test.tsx - 消息气泡测试（扩展现有文件）
+    </locations>
+    <ideas>
+      AC1 (消息发送功能):
+      - 测试sendTextMessage方法成功调用Evolution API
+      - 测试发送后消息立即显示在UI中（乐观更新）
+      - 测试单聊和群聊消息发送差异
+      - 测试message:send IPC handler正确处理请求
+
+      AC2 (Enter键发送):
+      - 测试Enter键触发发送消息
+      - 测试Shift+Enter插入换行符
+      - 测试isComposing状态下Enter键不触发发送（中文输入法）
+      - 测试发送后输入框自动清空和高度重置
+      - 测试输入框自动高度调整（最多5行）
+
+      AC3 (发送状态更新):
+      - 测试消息状态从sending→sent→delivered→read的转换
+      - 测试WebSocket messages.update事件更新状态
+      - 测试MessageBubble根据状态显示不同图标
+      - 测试发送失败显示红色错误图标
+
+      AC4 (Typing指示器):
+      - 测试防抖300ms后发送typing事件
+      - 测试停止输入3秒后取消typing状态
+      - 测试ChatHeader接收typing事件显示"正在输入..."
+      - 测试群聊显示"[联系人名]正在输入..."
+
+      AC5 (失败重试):
+      - 测试网络错误标记消息为failed状态
+      - 测试指数退避重试逻辑（1s, 2s, 4s间隔）
+      - 测试最多重试3次后标记为最终失败
+      - 测试重试按钮点击触发retryFailedMessage
+      - 测试失败消息保存到failed_messages表
+      - 测试应用重启后加载失败消息队列
+    </ideas>
+  </tests>
+</story-context>

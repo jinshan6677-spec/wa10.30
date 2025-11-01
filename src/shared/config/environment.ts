@@ -118,24 +118,49 @@ class Environment {
 
   // 获取应用程序数据目录
   static getAppDataPath(): string {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require, no-restricted-syntax, import/no-extraneous-dependencies
-    const { app } = require('electron');
-    return app.getPath('userData');
+    // 只在主进程中可用
+    if (typeof window !== 'undefined') {
+      throw new Error('getAppDataPath() can only be called in main process');
+    }
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require, no-restricted-syntax, import/no-extraneous-dependencies
+      const { app } = require('electron');
+      return app.getPath('userData');
+    } catch (error) {
+      // 在渲染进程中，require('electron') 会失败
+      throw new Error('getAppDataPath() can only be called in main process');
+    }
   }
 
   // 获取日志文件路径
   static getLogPath(): string {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require, no-restricted-syntax, import/no-extraneous-dependencies
-    const { app } = require('electron');
-    const appDataPath = app.getPath('userData');
-    return `${appDataPath}/logs`;
+    // 只在主进程中可用
+    if (typeof window !== 'undefined') {
+      throw new Error('getLogPath() can only be called in main process');
+    }
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require, no-restricted-syntax, import/no-extraneous-dependencies
+      const { app } = require('electron');
+      const appDataPath = app.getPath('userData');
+      return `${appDataPath}/logs`;
+    } catch (error) {
+      throw new Error('getLogPath() can only be called in main process');
+    }
   }
 
   // 获取缓存目录
   static getCachePath(): string {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require, no-restricted-syntax, import/no-extraneous-dependencies
-    const { app } = require('electron');
-    return app.getPath('cache');
+    // 只在主进程中可用
+    if (typeof window !== 'undefined') {
+      throw new Error('getCachePath() can only be called in main process');
+    }
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require, no-restricted-syntax, import/no-extraneous-dependencies
+      const { app } = require('electron');
+      return app.getPath('cache');
+    } catch (error) {
+      throw new Error('getCachePath() can only be called in main process');
+    }
   }
 }
 
