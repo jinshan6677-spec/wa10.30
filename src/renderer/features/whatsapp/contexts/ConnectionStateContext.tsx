@@ -12,6 +12,7 @@ interface ConnectionStateContextValue {
   updateError: (error: Error | null) => void;
   incrementReconnectAttempts: () => void;
   resetReconnectAttempts: () => void;
+  resetSession: () => void; // 🔥 新增：重置会话状态
 }
 
 const ConnectionStateContext = createContext<ConnectionStateContextValue | undefined>(undefined);
@@ -19,18 +20,40 @@ const ConnectionStateContext = createContext<ConnectionStateContextValue | undef
 const initialConnectionState: ConnectionState = {
   status: ConnectionStatus.DISCONNECTED,
   instanceKey: null,
+  phoneNumber: null,
   qrCode: null,
   error: null,
   lastConnected: null,
   reconnectAttempts: 0,
+  sessionValid: false,
 };
 
 interface ConnectionStateProviderProps {
   children: ReactNode;
 }
 
+// 🔥 修复：从 localStorage 初始化连接状态，避免页面刷新时状态丢失
+const loadInitialState = (): ConnectionState => {
+  try {
+    const stored = localStorage.getItem('whatsapp-connection-state');
+    if (stored) {
+      const persisted = JSON.parse(stored) as ConnectionState;
+      // 将 Date 字符串转换回 Date 对象
+      if (persisted.lastConnected) {
+        persisted.lastConnected = new Date(persisted.lastConnected);
+      }
+      console.log('[ConnectionState] 📦 Loaded persisted state from localStorage:', persisted.status);
+      return persisted;
+    }
+  } catch (error) {
+    console.error('[ConnectionState] Failed to load persisted state:', error);
+  }
+  console.log('[ConnectionState] 📦 No persisted state found, using initial state');
+  return initialConnectionState;
+};
+
 export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = ({ children }) => {
-  const [connectionState, setConnectionState] = useState<ConnectionState>(initialConnectionState);
+  const [connectionState, setConnectionState] = useState<ConnectionState>(loadInitialState);
   // 移除防抖机制 - WebSocket事件已有Evolution API的自然节流
 
   // 订阅 Evolution API 事件
@@ -48,10 +71,12 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
 
     // WebSocket 断开连接
     const handleWebSocketDisconnected = (data: { reason: string }) => {
-      console.log('[ConnectionState] WebSocket disconnected:', data.reason);
+      console.log('[ConnectionState] 🔌 WebSocket disconnected:', data.reason);
+      // 🔥 修复：WebSocket 断开时标记会话为无效，触发自动跳转到登录页
       setConnectionState(prev => ({
         ...prev,
         status: ConnectionStatus.DISCONNECTED,
+        sessionValid: false, // 标记会话无效
       }));
     };
 
@@ -66,23 +91,70 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
     };
 
     // 连接状态更新
-    const handleConnectionUpdate = (data: { instance: string; state: string }) => {
-      console.log('[ConnectionState] Connection update:', data);
+    const handleConnectionUpdate = (_event: any, eventData: any) => {
+      console.log('[ConnectionState] 📡 Connection update RAW data:', JSON.stringify(eventData, null, 2));
+      console.log('[ConnectionState] 📊 Current status:', connectionState.status);
 
-      if (data.state === 'open') {
+      // 🔥 修复：Evolution API 的事件结构是 eventData.data.state，而不是 eventData.state
+      const data = eventData.data || eventData;
+      const state = data.state;
+      const user = data.user;
+
+      console.log('[ConnectionState] 📊 Extracted state:', state);
+      console.log('[ConnectionState] 📊 Extracted user:', user);
+
+      if (state === 'open') {
+        const connectionTime = Date.now();
+        console.log('[ConnectionState] ✅ WhatsApp connected successfully!');
+        console.log('[ConnectionState] 🔑 Instance key:', data.instance);
+        console.log('[ConnectionState] 📱 User data:', data.user);
+        console.log('[ConnectionState] 📊 Starting automatic data synchronization...');
+
+        // 提取绑定的手机号（用于会话持久化）
+        const phoneNumber = data.user?.phoneNumber || data.user?.id?.replace('@s.whatsapp.net', '') || null;
+        console.log('[ConnectionState] 📱 Bound phone number:', phoneNumber);
+
         setConnectionState(prev => ({
           ...prev,
           status: ConnectionStatus.CONNECTED,
           lastConnected: new Date(),
           instanceKey: data.instance,
+          phoneNumber,
+          sessionValid: true,
           error: null,
         }));
-      } else if (data.state === 'close') {
+
+        // 连接成功后自动同步聊天数据（符合WhatsApp流程）
+        // 使用 chatAPI.syncChats 同步最新的聊天列表
+        void (async () => {
+          try {
+            const syncStartTime = Date.now();
+            console.log('[ConnectionState] 🔄 Syncing chats from Evolution API...');
+            const syncResponse = await window.electronAPI.chatAPI.syncChats(data.instance);
+
+            if (syncResponse.success) {
+              const syncTime = Date.now() - syncStartTime;
+              console.log(`[ConnectionState] ✅ Chat sync completed in ${syncTime}ms`);
+              console.log(`[ConnectionState] 🎉 Total connection time: ${Date.now() - connectionTime}ms`);
+              // 发送事件通知聊天列表已更新
+              // ChatContext 会通过 'chat:list-updated' 事件自动接收更新
+            } else {
+              console.error('[ConnectionState] ❌ Chat sync failed:', syncResponse.error);
+            }
+          } catch (error) {
+            console.error('[ConnectionState] ❌ Error syncing chats:', error);
+          }
+        })();
+      } else if (state === 'close') {
+        console.log('[ConnectionState] 🔌 WhatsApp connection closed');
+        // 🔥 修复：连接关闭时标记会话为无效，触发自动跳转到登录页
         setConnectionState(prev => ({
           ...prev,
           status: ConnectionStatus.DISCONNECTED,
+          sessionValid: false, // 标记会话失效
         }));
-      } else if (data.state === 'connecting') {
+      } else if (state === 'connecting') {
+        console.log('[ConnectionState] ⏳ WhatsApp is connecting (scanning QR code)...');
         setConnectionState(prev => ({
           ...prev,
           status: ConnectionStatus.CONNECTING,
@@ -157,6 +229,12 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
     };
 
     // 注册事件监听器
+    // 检查是否在Electron环境中
+    if (!electronAPI) {
+      console.warn('ConnectionStateContext: Not running in Electron environment');
+      return;
+    }
+
     electronAPI.on('evolution-api:websocket-connected', handleWebSocketConnected);
     electronAPI.on('evolution-api:websocket-disconnected', handleWebSocketDisconnected);
     electronAPI.on('evolution-api:websocket-error', handleWebSocketError);
@@ -212,6 +290,16 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
     }));
   };
 
+  // 🔥 新增：重置会话状态（用于退出登录）
+  const resetSession = () => {
+    console.log('[ConnectionState] 🔓 Resetting session state (logout)');
+    setConnectionState({
+      ...initialConnectionState,
+      status: ConnectionStatus.DISCONNECTED,
+      sessionValid: false,
+    });
+  };
+
   // 持久化连接状态到本地存储
   useEffect(() => {
     try {
@@ -221,22 +309,70 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
     }
   }, [connectionState]);
 
-  // 从本地存储恢复连接状态
+  // 🔥 新增：会话恢复验证机制（修复重启后需要重新扫码的问题）
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('whatsapp-connection-state');
-      if (stored) {
-        const parsedState = JSON.parse(stored) as ConnectionState;
-        // 只恢复特定字段,不恢复临时状态
-        setConnectionState(prev => ({
-          ...prev,
-          instanceKey: parsedState.instanceKey,
-          lastConnected: parsedState.lastConnected ? new Date(parsedState.lastConnected) : null,
-        }));
+    const restoreSession = async () => {
+      try {
+        // 🔥 修复：优先使用硬编码的实例名，因为它是固定的
+        const INSTANCE_NAME = 'whatsapp_main';
+
+        console.log('[ConnectionState] 🔍 Checking for existing Evolution API instance...');
+
+        // 🔥 修复：直接检查 Evolution API 实例状态，不依赖 localStorage
+        const statusResponse = await window.electronAPI.evolutionAPI.getConnectionStatus(
+          INSTANCE_NAME,
+        );
+
+        if (!statusResponse.success) {
+          console.log('[ConnectionState] ❌ Instance does not exist, will create new one');
+          return;
+        }
+
+        const instanceStatus = statusResponse.data.instance?.state;
+        console.log('[ConnectionState] 📊 Instance status:', instanceStatus);
+        console.log('[ConnectionState] 📋 Full response:', JSON.stringify(statusResponse.data, null, 2));
+
+        if (instanceStatus === 'open') {
+          // 实例已连接，直接恢复 CONNECTED 状态
+          console.log('[ConnectionState] ✅ WhatsApp already connected! Restoring session...');
+
+          // 尝试从 localStorage 获取电话号码
+          const stored = localStorage.getItem('whatsapp-connection-state');
+          let phoneNumber = null;
+          if (stored) {
+            try {
+              const persisted = JSON.parse(stored) as ConnectionState;
+              phoneNumber = persisted.phoneNumber;
+            } catch (e) {
+              console.warn('[ConnectionState] Failed to parse stored state:', e);
+            }
+          }
+
+          setConnectionState({
+            status: ConnectionStatus.CONNECTED,
+            instanceKey: INSTANCE_NAME,
+            phoneNumber,
+            qrCode: null,
+            error: null,
+            lastConnected: new Date(),
+            reconnectAttempts: 0,
+            sessionValid: true,
+          });
+
+          // 重新连接WebSocket以接收实时事件
+          console.log('[ConnectionState] 🔌 Connecting WebSocket...');
+          await window.electronAPI.evolutionAPI.connectWebSocket(INSTANCE_NAME);
+        } else {
+          // 实例存在但未连接
+          console.log('[ConnectionState] ℹ️ Instance exists but not connected (state:', instanceStatus, ')');
+        }
+      } catch (error) {
+        console.error('[ConnectionState] ❌ Failed to restore session:', error);
+        // 发生错误时不恢复会话
       }
-    } catch (error) {
-      console.error('[ConnectionState] Failed to restore state:', error);
-    }
+    };
+
+    void restoreSession();
   }, []);
 
   const value: ConnectionStateContextValue = {
@@ -247,6 +383,7 @@ export const ConnectionStateProvider: React.FC<ConnectionStateProviderProps> = (
     updateError,
     incrementReconnectAttempts,
     resetReconnectAttempts,
+    resetSession, // 🔥 新增：导出重置会话方法
   };
 
   return (
