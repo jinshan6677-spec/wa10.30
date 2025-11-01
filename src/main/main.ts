@@ -28,6 +28,15 @@ class Application {
       app.setAppUserModelId('com.bmad.whatsapp-language-enhancement');
     }
 
+    // 修复GPU缓存权限错误：设置用户数据目录
+    const userDataPath = app.getPath('userData');
+    app.setPath('userData', userDataPath);
+
+    // 设置缓存路径到用户数据目录下，确保有权限
+    const cachePath = path.join(userDataPath, 'Cache');
+    app.setPath('cache', cachePath);
+    app.setPath('crashDumps', path.join(userDataPath, 'Crashpad'));
+
     // 应用程序事件监听
     void app.whenReady().then(() => this.createMainWindow());
 
@@ -61,6 +70,7 @@ class Application {
       webPreferences: {
         nodeIntegration: false, // 安全：禁用Node.js集成
         contextIsolation: true, // 安全：启用上下文隔离
+        sandbox: false, // 禁用沙箱以避免sandboxed_renderer错误
         // enableRemoteModule: false, // 在新版本Electron中已移除
         preload: path.join(__dirname, '../preload/preload.js'), // 预加载脚本
         webSecurity: true, // 启用Web安全
@@ -78,6 +88,19 @@ class Application {
         if (process.env.NODE_ENV === 'development') {
           this.mainWindow.webContents.openDevTools();
         }
+      }
+    });
+
+    // 🔥 调试：监听渲染进程的 console 消息
+    this.mainWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
+      const levelMap: Record<number, string> = {
+        0: 'LOG',
+        1: 'WARN',
+        2: 'ERROR',
+      };
+      console.log(`[Renderer ${levelMap[level] || 'LOG'}] ${message}`);
+      if (sourceId) {
+        console.log(`  Source: ${sourceId}:${line}`);
       }
     });
 

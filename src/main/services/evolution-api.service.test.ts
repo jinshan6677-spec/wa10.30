@@ -177,9 +177,9 @@ describe('EvolutionAPIService', () => {
       expect(mockedIo).toHaveBeenCalledWith(mockConfig.baseURL, {
         reconnection: true,
         reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 30000,
-        timeout: 30000,
+        reconnectionDelay: 500,
+        reconnectionDelayMax: 5000,
+        timeout: 15000,
         extraHeaders: {
           apikey: mockConfig.apiKey,
         },
